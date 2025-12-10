@@ -1,0 +1,104 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE tasks SET tsk_id = $1,\n            tsk_title = $2,\n            tsk_description = $3,\n            tsk_status = $4,\n            tsk_usr_comment = $5,\n            tsk_expires_at = $6,\n            tsk_reschedule_at = $7\n            RETURNING\n                tsk_id AS id,\n                tsk_cat_id AS \"category_id!\",\n                tsk_title AS title,\n                tsk_description AS description,\n                tsk_status AS \"status: _\",\n                tsk_usr_comment AS user_comment,\n                tsk_created_at AS created_at,\n                tsk_updated_at AS updated_at,\n                tsk_expires_at AS expires_at,\n                tsk_reschedule_at AS reschedule_at",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "category_id!",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 2,
+        "name": "title",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "description",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "status: _",
+        "type_info": {
+          "Custom": {
+            "name": "task_status",
+            "kind": {
+              "Enum": [
+                "open",
+                "cancel",
+                "done"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "user_comment",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 7,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 8,
+        "name": "expires_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 9,
+        "name": "reschedule_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4",
+        "Text",
+        "Text",
+        {
+          "Custom": {
+            "name": "task_status",
+            "kind": {
+              "Enum": [
+                "open",
+                "cancel",
+                "done"
+              ]
+            }
+          }
+        },
+        "Text",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "dbee9fb1c2f2580f4dd0155df012b49a9bd6c143032645f92737ba849b235d58"
+}

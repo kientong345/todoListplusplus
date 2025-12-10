@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT cat_usr_id\n            FROM categories\n            JOIN tasks ON cat_id = tsk_cat_id\n            WHERE tsk_id = $1",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "cat_usr_id",
+        "type_info": "Int4"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "371e35877df76f22b2bc8847eaeafa7141639335b38334bb6ab7edabb360fc45"
+}
