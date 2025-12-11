@@ -100,7 +100,6 @@ impl TaskCreateDto {
 #[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct TaskUpdateDto {
-    pub id: i32,
     pub title: Option<String>,
     pub description: Option<String>,
     pub status: Option<String>,
@@ -109,10 +108,10 @@ pub struct TaskUpdateDto {
     pub reschedule_at: Option<String>,
 }
 
-impl Into<TaskUpdateParams> for TaskUpdateDto {
-    fn into(self) -> TaskUpdateParams {
+impl TaskUpdateDto {
+    pub fn bind(self, task_id: i32) -> TaskUpdateParams {
         TaskUpdateParams {
-            id: self.id,
+            id: task_id,
             title: self.title.clone(),
             description: self.description.clone(),
             status: self
@@ -132,7 +131,7 @@ impl Into<TaskUpdateParams> for TaskUpdateDto {
     }
 }
 
-impl TaskUpdateDto {
+impl TaskUpdateParams {
     pub async fn validate(
         self,
         user_id: i32,

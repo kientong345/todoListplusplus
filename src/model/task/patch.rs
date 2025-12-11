@@ -6,8 +6,8 @@ use crate::model::{
 };
 
 impl TaskDatabase {
-    pub async fn update_by_id(
-        params: TaskUpdateParams,
+    pub async fn update(
+        params: &TaskUpdateParams,
         connection: &mut PgConnection,
     ) -> Result<TaskDatabase, ModelError> {
         let task = sqlx::query_as!(
@@ -33,7 +33,7 @@ impl TaskDatabase {
             params.id,
             params.title,
             params.description,
-            params.status as Option<TaskStatus>,
+            params.status.clone() as Option<TaskStatus>,
             params.user_comment,
             params.expires_at,
             params.reschedule_at
