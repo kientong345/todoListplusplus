@@ -7,7 +7,6 @@ use crate::model::{
 
 impl UserDatabase {
     pub async fn update(
-        &self,
         params: &UserUpdateParams,
         connection: &mut sqlx::PgConnection,
     ) -> Result<UserDatabase, ModelError> {
@@ -32,7 +31,7 @@ impl UserDatabase {
                 usr_created_at AS created_at,
                 usr_updated_at AS updated_at
             "#,
-            self.id,
+            params.id,
             params.display_name,
             params.avatar_url,
             params.description,

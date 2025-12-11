@@ -42,6 +42,7 @@ pub struct UserCreateParams {
 
 #[derive(Debug, Clone)]
 pub struct UserUpdateParams {
+    pub id: i32,
     pub display_name: Option<String>,
     pub avatar_url: Option<String>,
     pub description: Option<String>,

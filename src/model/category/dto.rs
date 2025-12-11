@@ -89,16 +89,15 @@ impl CategoryCreateDto {
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct CategoryUpdateDto {
-    pub id: i32,
     pub name: Option<String>,
     pub image_url: Option<String>,
     pub description: Option<String>,
 }
 
-impl Into<CategoryUpdateParams> for CategoryUpdateDto {
-    fn into(self) -> CategoryUpdateParams {
+impl CategoryUpdateDto {
+    pub fn bind(self, id: i32) -> CategoryUpdateParams {
         CategoryUpdateParams {
-            id: self.id,
+            id,
             name: self.name,
             image_url: self.image_url,
             description: self.description,
@@ -106,7 +105,7 @@ impl Into<CategoryUpdateParams> for CategoryUpdateDto {
     }
 }
 
-impl CategoryUpdateDto {
+impl CategoryUpdateParams {
     pub async fn validate(
         self,
         user_id: i32,

@@ -1,4 +1,4 @@
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 
 use crate::{model::error::ModelError, utils::validate_email_name};
 
@@ -41,17 +41,4 @@ impl LoginSchema {
 
         Ok(self)
     }
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct AccessClaims {
-    pub sub: String,
-    // pub role: String,
-    pub exp: i64,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct RefreshClaims {
-    pub sub: String,
-    pub exp: i64,
 }

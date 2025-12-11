@@ -6,7 +6,7 @@ use axum::{
     response::{IntoResponse, Response},
 };
 
-use crate::{app::AppState, model::user_auth::auth::AccessClaims};
+use crate::{app::AppState, model::user_auth::AccessClaims};
 
 pub async fn auth_middleware(
     State(state): State<AppState>,

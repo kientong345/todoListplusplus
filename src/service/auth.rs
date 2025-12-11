@@ -3,10 +3,13 @@ use sqlx::PgConnection;
 
 use crate::{
     config::auth::AuthConfig,
-    model::user::{UserCreateParams, UserDatabase},
-    model::user_auth::{
-        auth::{AccessClaims, LoginSchema, RefreshClaims, RegisterSchema},
-        oauth::OAuthSchema,
+    model::{
+        user::{UserCreateParams, UserDatabase},
+        user_auth::{
+            auth::{LoginSchema, RegisterSchema},
+            oauth::OAuthSchema,
+            AccessClaims, RefreshClaims,
+        },
     },
     service::error::ServiceError,
     utils::{bcrypt_hash, decode_jwt, generate_jwt},
