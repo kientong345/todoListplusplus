@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 use crate::model::user::{UserInfo, UserUpdateParams};
 
 #[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct UserInfoDto {
     pub id: i32,
     pub display_name: String,
@@ -28,6 +29,7 @@ impl From<UserInfo> for UserInfoDto {
 }
 
 #[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct UserUpdateDto {
     pub display_name: Option<String>,
     pub avatar_url: Option<String>,

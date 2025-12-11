@@ -25,7 +25,9 @@ impl Paginate<CategorySearchParams> for CategoryMinimal {
 
         let query = format!(
             r#"SELECT 
-                id, user_id, name, image_url, description, progress, task_count
+                id, user_id, name, image_url, description, 
+                CAST(progress AS DOUBLE PRECISION) as progress,
+                task_count
             FROM categories_with_tasks_count
             WHERE user_id = $1 AND name ILIKE $2
             ORDER BY {}

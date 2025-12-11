@@ -12,6 +12,7 @@ use crate::model::{
 };
 
 #[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct CategoryDetailDto {
     pub id: i32,
     pub user_id: i32,
@@ -47,6 +48,7 @@ impl From<CategoryDetail> for CategoryDetailDto {
 }
 
 #[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct CategoryMinimalDto {
     pub id: i32,
     pub user_id: i32,
@@ -70,6 +72,7 @@ impl From<CategoryMinimal> for CategoryMinimalDto {
 }
 
 #[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct CategoryCreateDto {
     pub name: String,
     pub image_url: Option<String>,
@@ -88,6 +91,7 @@ impl CategoryCreateDto {
 }
 
 #[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct CategoryUpdateDto {
     pub name: Option<String>,
     pub image_url: Option<String>,
@@ -150,6 +154,7 @@ impl CategoryDeleteDto {
 }
 
 #[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct CategorySearchDto {
     pub name_pattern: Option<String>,
     pub page: i32,

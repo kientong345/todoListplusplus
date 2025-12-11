@@ -13,6 +13,7 @@ use crate::model::{
 };
 
 #[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct TaskMinimalDto {
     pub id: i32,
     pub title: String,
@@ -32,6 +33,7 @@ impl From<TaskMinimal> for TaskMinimalDto {
 }
 
 #[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct TaskDetailDto {
     pub id: i32,
     pub category_id: i32,
@@ -65,6 +67,7 @@ impl From<TaskDetail> for TaskDetailDto {
 }
 
 #[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct TaskCreateDto {
     pub title: String,
     pub description: Option<String>,
@@ -95,6 +98,7 @@ impl TaskCreateDto {
 }
 
 #[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct TaskUpdateDto {
     pub id: i32,
     pub title: Option<String>,
@@ -172,6 +176,7 @@ impl TaskDeleteDto {
 }
 
 #[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct TaskSearchDto {
     pub title_pattern: Option<String>,
     pub status: Option<Vec<String>>,

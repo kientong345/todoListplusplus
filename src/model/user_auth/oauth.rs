@@ -1,7 +1,7 @@
 use serde::Deserialize;
 
 #[derive(Debug, Clone, Deserialize)]
-#[serde(rename_all = "snake_case")]
+#[serde(rename_all = "camelCase")]
 pub struct OAuthSchema {
     pub google_id: String,
     pub display_name: String,
@@ -9,14 +9,14 @@ pub struct OAuthSchema {
 }
 
 #[derive(Deserialize)]
-#[serde(rename_all = "snake_case")]
+#[serde(rename_all = "camelCase")]
 pub struct OAuthResponse {
     pub access_token: String,
     pub id_token: String,
 }
 
 #[derive(Deserialize)]
-#[serde(rename_all = "snake_case")]
+#[serde(rename_all = "camelCase")]
 pub struct GoogleUserResult {
     pub id: String,
     pub email: String,

@@ -15,7 +15,7 @@ pub async fn auth_middleware(
 ) -> Response {
     let auth_header = match req.headers().get("Authorization") {
         Some(value) => value,
-        None => return StatusCode::NON_AUTHORITATIVE_INFORMATION.into_response(),
+        None => return StatusCode::UNAUTHORIZED.into_response(),
     };
 
     let access_token = auth_header

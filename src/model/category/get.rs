@@ -34,8 +34,8 @@ impl CategoryDetail {
             CategoryDetail,
             r#"SELECT 
                 id AS "id!", user_id AS "user_id!", name AS "name!",
-                image_url AS "image_url!", description AS "description!",
-                created_at AS "created_at!", updated_at AS "updated_at!",
+                image_url, description,
+                created_at, updated_at,
                 progress AS "progress!: f64",
                 task_count AS "task_count!",
                 opened_task_count AS "opened_task_count!",
