@@ -3,8 +3,10 @@ use std::sync::Arc;
 use axum::Router;
 
 use crate::{
-    config::Configuration, database::persistent::PrimaryDatabase, routes,
-    service::auth::AuthService,
+    config::Configuration,
+    database::persistent::PrimaryDatabase,
+    routes,
+    service::{auth::AuthService, task_scheduler::SchedulerService},
 };
 
 #[derive(Clone)]
@@ -12,6 +14,7 @@ pub struct AppState {
     pub db: PrimaryDatabase,
     pub config: Arc<Configuration>,
     pub auth_service: AuthService,
+    pub scheduler_service: SchedulerService,
 }
 
 pub async fn create_app(state: AppState) -> Router {

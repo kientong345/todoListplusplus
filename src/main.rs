@@ -4,7 +4,7 @@ use todo_list::{
     app::{self, AppState},
     config::Configuration,
     database::persistent::PrimaryDatabase,
-    service::auth::AuthService,
+    service::{auth::AuthService, task_scheduler::SchedulerService},
 };
 use tokio::net::TcpListener;
 
@@ -29,11 +29,13 @@ async fn main() {
     // Initialize application state
     let db = PrimaryDatabase::init(&config.db_config).await;
     let auth_service = AuthService::new(config.auth_config.clone());
+    let scheduler_service = SchedulerService::new(config.scheduler_config.clone());
 
     let app_state = AppState {
         db,
         config,
         auth_service,
+        scheduler_service,
     };
 
     // Create app

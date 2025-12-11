@@ -5,12 +5,14 @@ use crate::config::{
     auth::AuthConfig,
     database::{CacheConfig, DatabaseConfig},
     oauth::OAuthConfig,
+    scheduler::SchedulerConfig,
 };
 
 pub mod app;
 pub mod auth;
 pub mod database;
 pub mod oauth;
+pub mod scheduler;
 
 #[derive(Debug, Deserialize, Serialize, Clone, Default)]
 pub struct Configuration {
@@ -19,6 +21,7 @@ pub struct Configuration {
     pub cache_config: CacheConfig,
     pub auth_config: AuthConfig,
     pub oauth_config: OAuthConfig,
+    pub scheduler_config: SchedulerConfig,
 }
 
 impl Configuration {
@@ -29,6 +32,7 @@ impl Configuration {
             cache_config: CacheConfig::get(),
             auth_config: AuthConfig::get(),
             oauth_config: OAuthConfig::get(),
+            scheduler_config: SchedulerConfig::get(),
         }
     }
 }
