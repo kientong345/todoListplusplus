@@ -40,10 +40,12 @@ async fn main() {
 
     let email_client = Arc::new(EmailClient::new());
 
-    let scheduler_service = Arc::new(SchedulerService::new(
-        scheduler_runtime,
-        email_client.clone(),
-    ));
+    let scheduler_service = Arc::new(
+        SchedulerService::init(db.clone(), scheduler_runtime, email_client.clone())
+            .with_scheduled_tasks()
+            .await
+            .expect("cannot fetch scheduled tasks from database"),
+    );
 
     let app_state = AppState {
         db,

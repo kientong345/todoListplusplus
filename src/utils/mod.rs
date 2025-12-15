@@ -1,4 +1,6 @@
+use chrono::{DateTime, Utc};
 use serde::{de::DeserializeOwned, Deserialize, Deserializer, Serialize, Serializer};
+use sqlx::postgres::types::PgInterval;
 
 /// Converts a vector of any type that implements ToString into a vector of strings
 pub fn vec_stringify<T: ToString>(vec: Vec<T>) -> Vec<String> {
@@ -100,4 +102,31 @@ pub fn get_runtime(
         .thread_name(thread_name)
         .enable_all()
         .build()
+}
+
+pub fn datetime_to_string(datetime: DateTime<Utc>) -> String {
+    datetime.to_rfc3339()
+}
+
+pub fn string_to_datetime(datetime: &str) -> DateTime<Utc> {
+    DateTime::parse_from_rfc3339(datetime).unwrap().into()
+}
+
+pub fn pg_interval_to_string(interval: PgInterval) -> String {
+    format!(
+        "{} {} {}",
+        interval.months, interval.days, interval.microseconds
+    )
+}
+
+pub fn string_to_pg_interval(interval: &str) -> PgInterval {
+    let parts: Vec<&str> = interval.split(' ').collect();
+    let months = parts[0].parse::<i32>().unwrap();
+    let days = parts[1].parse::<i32>().unwrap();
+    let microseconds = parts[2].parse::<i64>().unwrap();
+    PgInterval {
+        months,
+        days,
+        microseconds,
+    }
 }

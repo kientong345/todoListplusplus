@@ -18,7 +18,8 @@ impl TaskDatabase {
             tsk_status = $4,
             tsk_usr_comment = $5,
             tsk_expires_at = $6,
-            tsk_reschedule_at = $7
+            tsk_cycle_time = $7,
+            tsk_pre_notify_time = $8
             RETURNING
                 tsk_id AS id,
                 tsk_cat_id AS "category_id!",
@@ -29,14 +30,16 @@ impl TaskDatabase {
                 tsk_created_at AS created_at,
                 tsk_updated_at AS updated_at,
                 tsk_expires_at AS expires_at,
-                tsk_reschedule_at AS reschedule_at"#,
+                tsk_cycle_time AS cycle_time,
+                tsk_pre_notify_time AS pre_notify_time"#,
             params.id,
             params.title,
             params.description,
             params.status.clone() as Option<TaskStatus>,
             params.user_comment,
             params.expires_at,
-            params.reschedule_at
+            params.cycle_time,
+            params.pre_notify_time
         )
         .fetch_one(connection)
         .await?;

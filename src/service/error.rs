@@ -7,6 +7,9 @@ pub enum ServiceError {
     #[error("model error: {0}")]
     Model(#[from] ModelError),
 
+    #[error("database error: {0}")]
+    Database(#[from] sqlx::Error),
+
     #[error("token exchange error: {0}")]
     TokenExchange(#[from] reqwest::Error),
 
@@ -36,6 +39,7 @@ impl ServiceError {
     pub fn get_code(&self) -> u16 {
         match self {
             ServiceError::Model(_) => 50013,
+            ServiceError::Database(_) => 50012,
             ServiceError::TokenExchange(_) => 50014,
             ServiceError::Bcrypt(_) => 50003,
             ServiceError::Jwt(_) => 50002,

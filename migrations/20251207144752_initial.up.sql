@@ -43,5 +43,6 @@ CREATE TABLE IF NOT EXISTS tasks (
     tsk_created_at      TIMESTAMPTZ DEFAULT NOW(),
     tsk_updated_at      TIMESTAMPTZ DEFAULT NOW(),
     tsk_expires_at      TIMESTAMPTZ DEFAULT NULL,
-    tsk_reschedule_at   TIMESTAMPTZ DEFAULT NULL
+    tsk_cycle_time      INTERVAL DEFAULT NULL, -- reschedule_time = (tsk_expires_at + tsk_cycle_time)
+    tsk_pre_notify_time INTERVAL DEFAULT NULL -- time = (tsk_expires_at - tsk_pre_notify_time)
 );

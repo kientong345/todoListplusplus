@@ -1,16 +1,15 @@
 use std::str::FromStr;
 
-use chrono::DateTime;
 use serde::{Deserialize, Serialize};
 use sqlx::PgConnection;
 
-use crate::model::{
+use crate::{model::{
     error::ModelError,
     task::{
         TaskCreateParams, TaskDatabase, TaskDetail, TaskMinimal, TaskSearchParams, TaskSortBy,
         TaskStatus, TaskUpdateParams,
     },
-};
+}, utils::{datetime_to_string, pg_interval_to_string, string_to_datetime, string_to_pg_interval}};
 
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -19,6 +18,7 @@ pub struct TaskMinimalDto {
     pub title: String,
     pub status: String,
     pub expires_at: Option<String>,
+    pub cycle_time: Option<String>,
 }
 
 impl From<TaskMinimal> for TaskMinimalDto {
@@ -27,7 +27,8 @@ impl From<TaskMinimal> for TaskMinimalDto {
             id: value.id,
             title: value.title,
             status: value.status.to_string(),
-            expires_at: value.expires_at.map(|dt| dt.to_rfc3339()),
+            expires_at: value.expires_at.map(|dt| datetime_to_string(dt)),
+            cycle_time: value.cycle_time.map(|d| pg_interval_to_string(d)),
         }
     }
 }
@@ -45,7 +46,8 @@ pub struct TaskDetailDto {
     pub created_at: Option<String>,
     pub updated_at: Option<String>,
     pub expires_at: Option<String>,
-    pub reschedule_at: Option<String>,
+    pub cycle_time: Option<String>,
+    pub pre_notify_time: Option<String>,
 }
 
 impl From<TaskDetail> for TaskDetailDto {
@@ -58,10 +60,11 @@ impl From<TaskDetail> for TaskDetailDto {
             description: value.description,
             status: value.status.to_string(),
             user_comment: value.user_comment,
-            created_at: value.created_at.map(|dt| dt.to_rfc3339()),
-            updated_at: value.updated_at.map(|dt| dt.to_rfc3339()),
-            expires_at: value.expires_at.map(|dt| dt.to_rfc3339()),
-            reschedule_at: value.reschedule_at.map(|dt| dt.to_rfc3339()),
+            created_at: value.created_at.map(|dt| datetime_to_string(dt)),
+            updated_at: value.updated_at.map(|dt| datetime_to_string(dt)),
+            expires_at: value.expires_at.map(|dt| datetime_to_string(dt)),
+            cycle_time: value.cycle_time.map(|d| pg_interval_to_string(d)),
+            pre_notify_time: value.pre_notify_time.map(|d| pg_interval_to_string(d)),
         }
     }
 }
@@ -74,7 +77,8 @@ pub struct TaskCreateDto {
     pub status: String,
     pub user_comment: Option<String>,
     pub expires_at: Option<String>,
-    pub reschedule_at: Option<String>,
+    pub cycle_time: Option<String>,
+    pub pre_notify_time: Option<String>,
 }
 
 impl TaskCreateDto {
@@ -88,11 +92,15 @@ impl TaskCreateDto {
             expires_at: self
                 .expires_at
                 .clone()
-                .map(|s| DateTime::parse_from_rfc3339(&s).unwrap().into()),
-            reschedule_at: self
-                .reschedule_at
+                .map(|s| string_to_datetime(&s)),
+            cycle_time: self
+                .cycle_time
                 .clone()
-                .map(|s| DateTime::parse_from_rfc3339(&s).unwrap().into()),
+                .map(|s| string_to_pg_interval(&s)),
+            pre_notify_time: self
+                .pre_notify_time
+                .clone()
+                .map(|s| string_to_pg_interval(&s)),
         }
     }
 }
@@ -104,8 +112,6 @@ pub struct TaskUpdateDto {
     pub description: Option<String>,
     pub status: Option<String>,
     pub user_comment: Option<String>,
-    pub expires_at: Option<String>,
-    pub reschedule_at: Option<String>,
 }
 
 impl TaskUpdateDto {
@@ -119,14 +125,9 @@ impl TaskUpdateDto {
                 .clone()
                 .map(|s| TaskStatus::from_str(&s).unwrap()),
             user_comment: self.user_comment.clone(),
-            expires_at: self
-                .expires_at
-                .clone()
-                .map(|s| DateTime::parse_from_rfc3339(&s).unwrap().into()),
-            reschedule_at: self
-                .reschedule_at
-                .clone()
-                .map(|s| DateTime::parse_from_rfc3339(&s).unwrap().into()),
+            expires_at: None,
+            cycle_time: None,
+            pre_notify_time: None,
         }
     }
 }
@@ -145,6 +146,36 @@ impl TaskUpdateParams {
             ));
         }
         Ok(self.into())
+    }
+}
+
+pub struct TaskScheduleDto {
+    pub expires_at: Option<String>,
+    pub cycle_time: Option<String>,
+    pub pre_notify_time: Option<String>,
+}
+
+impl TaskScheduleDto {
+    pub fn bind(self, task_id: i32) -> TaskUpdateParams {
+        TaskUpdateParams {
+            id: task_id,
+            title: None,
+            description: None,
+            status: None,
+            user_comment: None,
+            expires_at: self
+                .expires_at
+                .clone()
+                .map(|s| string_to_datetime(&s)),
+            cycle_time: self
+                .cycle_time
+                .clone()
+                .map(|s| string_to_pg_interval(&s)),
+            pre_notify_time: self
+                .pre_notify_time
+                .clone()
+                .map(|s| string_to_pg_interval(&s)),
+        }
     }
 }
 

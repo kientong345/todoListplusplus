@@ -3,13 +3,13 @@ use std::str::FromStr;
 use serde::{Deserialize, Serialize};
 use sqlx::PgConnection;
 
-use crate::model::{
+use crate::{model::{
     category::{
         CategoryCreateParams, CategoryDatabase, CategoryDetail, CategoryMinimal,
         CategorySearchParams, CategorySortBy, CategoryUpdateParams,
     },
     error::ModelError,
-};
+}, utils::datetime_to_string};
 
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -36,8 +36,8 @@ impl From<CategoryDetail> for CategoryDetailDto {
             name: value.name,
             image_url: value.image_url,
             description: value.description,
-            created_at: value.created_at.map(|dt| dt.to_rfc3339()),
-            updated_at: value.updated_at.map(|dt| dt.to_rfc3339()),
+            created_at: value.created_at.map(|dt| datetime_to_string(dt)),
+            updated_at: value.updated_at.map(|dt| datetime_to_string(dt)),
             task_count: value.task_count,
             opened_task_count: value.opened_task_count,
             canceled_task_count: value.canceled_task_count,

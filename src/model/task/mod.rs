@@ -2,7 +2,7 @@ use std::str::FromStr;
 
 use chrono::{DateTime, Utc};
 use serde::Serialize;
-use sqlx::prelude::FromRow;
+use sqlx::{postgres::types::PgInterval, prelude::FromRow};
 
 use crate::model::error::ModelError;
 
@@ -55,15 +55,17 @@ pub struct TaskDatabase {
     pub created_at: Option<DateTime<Utc>>,
     pub updated_at: Option<DateTime<Utc>>,
     pub expires_at: Option<DateTime<Utc>>,
-    pub reschedule_at: Option<DateTime<Utc>>,
+    pub cycle_time: Option<PgInterval>,
+    pub pre_notify_time: Option<PgInterval>,
 }
 
-#[derive(Debug, Clone, FromRow, Serialize)]
+#[derive(Debug, Clone, FromRow)]
 pub struct TaskMinimal {
     pub id: i32,
     pub title: String,
     pub status: TaskStatus,
     pub expires_at: Option<DateTime<Utc>>,
+    pub cycle_time: Option<PgInterval>,
 }
 
 #[derive(Debug, Clone, FromRow)]
@@ -78,7 +80,8 @@ pub struct TaskDetail {
     pub created_at: Option<DateTime<Utc>>,
     pub updated_at: Option<DateTime<Utc>>,
     pub expires_at: Option<DateTime<Utc>>,
-    pub reschedule_at: Option<DateTime<Utc>>,
+    pub cycle_time: Option<PgInterval>,
+    pub pre_notify_time: Option<PgInterval>,
 }
 
 #[derive(Debug, Clone)]
@@ -89,7 +92,8 @@ pub struct TaskCreateParams {
     pub status: TaskStatus,
     pub user_comment: Option<String>,
     pub expires_at: Option<DateTime<Utc>>,
-    pub reschedule_at: Option<DateTime<Utc>>,
+    pub cycle_time: Option<PgInterval>,
+    pub pre_notify_time: Option<PgInterval>,
 }
 
 #[derive(Debug, Clone)]
@@ -100,7 +104,8 @@ pub struct TaskUpdateParams {
     pub status: Option<TaskStatus>,
     pub user_comment: Option<String>,
     pub expires_at: Option<DateTime<Utc>>,
-    pub reschedule_at: Option<DateTime<Utc>>,
+    pub cycle_time: Option<PgInterval>,
+    pub pre_notify_time: Option<PgInterval>,
 }
 
 #[derive(Debug, Clone)]

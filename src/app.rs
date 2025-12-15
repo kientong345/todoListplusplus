@@ -15,7 +15,7 @@ pub struct AppState {
     pub config: Arc<Configuration>,
     pub auth_service: AuthService,
     pub scheduler_service: Arc<SchedulerService>,
-    pub email_client: Arc<EmailClient>
+    pub email_client: Arc<EmailClient>,
 }
 
 pub async fn create_app(state: AppState) -> Router {

@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::model::user::{UserInfo, UserUpdateParams};
+use crate::{model::user::{UserInfo, UserUpdateParams}, utils::datetime_to_string};
 
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -22,8 +22,8 @@ impl From<UserInfo> for UserInfoDto {
             email: value.email,
             avatar_url: value.avatar_url,
             description: value.description,
-            created_at: value.created_at.map(|dt| dt.to_rfc3339()),
-            updated_at: value.updated_at.map(|dt| dt.to_rfc3339()),
+            created_at: value.created_at.map(|dt| datetime_to_string(dt)),
+            updated_at: value.updated_at.map(|dt| datetime_to_string(dt)),
         }
     }
 }

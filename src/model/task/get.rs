@@ -22,7 +22,8 @@ impl TaskDatabase {
             tsk_created_at AS created_at,
             tsk_updated_at AS updated_at,
             tsk_expires_at AS expires_at,
-            tsk_reschedule_at AS reschedule_at
+            tsk_cycle_time AS cycle_time,
+            tsk_pre_notify_time AS pre_notify_time
             FROM tasks WHERE tsk_id = $1"#,
             task_id
         )
@@ -66,7 +67,8 @@ impl TaskDetail {
             tsk_created_at AS created_at,
             tsk_updated_at AS updated_at,
             tsk_expires_at AS expires_at,
-            tsk_reschedule_at AS reschedule_at
+            tsk_cycle_time AS cycle_time,
+            tsk_pre_notify_time AS pre_notify_time
             FROM tasks
             JOIN categories ON tsk_cat_id = cat_id
             WHERE tsk_id = $1"#,
