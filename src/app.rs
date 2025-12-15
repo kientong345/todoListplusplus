@@ -6,7 +6,7 @@ use crate::{
     config::Configuration,
     database::persistent::PrimaryDatabase,
     routes,
-    service::{auth::AuthService, task_scheduler::SchedulerService},
+    service::{auth::AuthService, email_client::EmailClient, task_scheduler::SchedulerService},
 };
 
 #[derive(Clone)]
@@ -14,7 +14,8 @@ pub struct AppState {
     pub db: PrimaryDatabase,
     pub config: Arc<Configuration>,
     pub auth_service: AuthService,
-    pub scheduler_service: SchedulerService,
+    pub scheduler_service: Arc<SchedulerService>,
+    pub email_client: Arc<EmailClient>
 }
 
 pub async fn create_app(state: AppState) -> Router {

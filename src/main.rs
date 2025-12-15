@@ -4,7 +4,8 @@ use todo_list::{
     app::{self, AppState},
     config::Configuration,
     database::persistent::PrimaryDatabase,
-    service::{auth::AuthService, task_scheduler::SchedulerService},
+    service::{auth::AuthService, email_client::EmailClient, task_scheduler::SchedulerService},
+    utils::get_runtime,
 };
 use tokio::net::TcpListener;
 
@@ -28,14 +29,28 @@ async fn main() {
 
     // Initialize application state
     let db = PrimaryDatabase::init(&config.db_config).await;
+
     let auth_service = AuthService::new(config.auth_config.clone());
-    let scheduler_service = SchedulerService::new(config.scheduler_config.clone());
+
+    let scheduler_runtime = get_runtime(
+        config.app_config.scheduler_threads as usize,
+        "todoListplusplus-tasks-scheduler",
+    )
+    .expect("cannot build todoListplusplus-tasks-scheduler runtime");
+
+    let email_client = Arc::new(EmailClient::new());
+
+    let scheduler_service = Arc::new(SchedulerService::new(
+        scheduler_runtime,
+        email_client.clone(),
+    ));
 
     let app_state = AppState {
         db,
         config,
         auth_service,
         scheduler_service,
+        email_client,
     };
 
     // Create app

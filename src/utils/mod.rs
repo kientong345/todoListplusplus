@@ -90,3 +90,14 @@ macro_rules! get_query_param {
         $map.get($key).and_then(|s| s.parse().ok())
     };
 }
+
+pub fn get_runtime(
+    thread_num: usize,
+    thread_name: &str,
+) -> Result<tokio::runtime::Runtime, std::io::Error> {
+    tokio::runtime::Builder::new_multi_thread()
+        .worker_threads(thread_num)
+        .thread_name(thread_name)
+        .enable_all()
+        .build()
+}
