@@ -44,5 +44,8 @@ CREATE TABLE IF NOT EXISTS tasks (
     tsk_updated_at      TIMESTAMPTZ DEFAULT NOW(),
     tsk_expires_at      TIMESTAMPTZ DEFAULT NULL,
     tsk_cycle_time      INTERVAL DEFAULT NULL, -- reschedule_time = (tsk_expires_at + tsk_cycle_time)
-    tsk_pre_notify_time INTERVAL DEFAULT NULL -- time = (tsk_expires_at - tsk_pre_notify_time)
+    tsk_pre_notify_time INTERVAL DEFAULT NULL, -- time = (tsk_expires_at - tsk_pre_notify_time)
+    tsk_next_version_id INT DEFAULT NULL REFERENCES tasks(tsk_id) ON DELETE SET NULL, -- use to find the latest version of cycle task
+
+    CONSTRAINT unique_task_per_category UNIQUE (tsk_cat_id, tsk_title)
 );

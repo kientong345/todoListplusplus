@@ -1,15 +1,20 @@
 use axum::{middleware::from_fn_with_state, routing::get, Router};
 
-use crate::{app::AppState, controller::task, middleware::auth::auth_middleware};
+use crate::{
+    app::AppState, controller::task, middleware::auth::auth_middleware, routes::API_PREFIX,
+};
 
 pub fn create_route(state: AppState) -> Router {
     Router::new()
         .route(
-            "/api/categories/{:category_id}/tasks",
+            &format!(r#"{}/categories/{{:category_id}}/tasks"#, API_PREFIX),
             get(task::get_page).post(task::create),
         )
         .route(
-            "/api/categories/{:category_id}/tasks/{:task_id}",
+            &format!(
+                r#"{}/categories/{{:category_id}}/tasks/{{:task_id}}"#,
+                API_PREFIX
+            ),
             get(task::find_by_id)
                 .delete(task::delete)
                 .patch(task::update),

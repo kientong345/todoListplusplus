@@ -3,7 +3,7 @@
 ## Authentication
 
 ### Register
-`POST /api/auth/register`
+`POST /api/v1/auth/register`
 
 **Request Body:**
 ```json
@@ -19,7 +19,7 @@
 - `400 Bad Request`: Invalid input (e.g., invalid email).
 
 ### Login
-`POST /api/auth/login`
+`POST /api/v1/auth/login`
 
 **Request Body:**
 ```json
@@ -39,7 +39,7 @@
   *Note: Refresh token is set in a `HttpOnly` cookie.*
 
 ### Google Login
-`POST /api/auth/google-login`
+`POST /api/v1/auth/google-login`
 
 **Query Parameters:**
 - `code`: Authorization code from Google.
@@ -59,10 +59,10 @@
 ## Users
 
 ### Get Current User
-`GET /api/users/me`
+`GET /api/v1/users/me`
 
 **Headers:**
-- [Authorization](file:///home/kt345/Documents/my_workspace/todo-list/src/model/user_auth/oauth.rs#43-47): `Bearer <access_token>`
+- `Authorization`: `Bearer <access_token>`
 
 **Response:**
 - `200 OK`
@@ -79,10 +79,10 @@
   ```
 
 ### Update Current User
-`PATCH /api/users/me`
+`PATCH /api/v1/users/me`
 
 **Headers:**
-- [Authorization](file:///home/kt345/Documents/my_workspace/todo-list/src/model/user_auth/oauth.rs#43-47): `Bearer <access_token>`
+- `Authorization`: `Bearer <access_token>`
 
 **Request Body:**
 ```json
@@ -102,14 +102,14 @@
 ## Categories
 
 ### Get Categories
-`GET /api/categories`
+`GET /api/v1/categories`
 
 **Headers:**
-- [Authorization](file:///home/kt345/Documents/my_workspace/todo-list/src/model/user_auth/oauth.rs#43-47): `Bearer <access_token>`
+- `Authorization`: `Bearer <access_token>`
 
 **Query Parameters:**
 - `name_pattern` (optional): Filter by name.
-- [page](file:///home/kt345/Documents/my_workspace/todo-list/src/controller/category.rs#24-40) (required): Page number (0-indexed).
+- `page` (required): Page number (0-indexed).
 - `page_size` (required): Number of items per page.
 - `sort_by` (optional): Sort field (default: `CreateTime`).
 
@@ -135,10 +135,10 @@
   ```
 
 ### Create Category
-`POST /api/categories`
+`POST /api/v1/categories`
 
 **Headers:**
-- [Authorization](file:///home/kt345/Documents/my_workspace/todo-list/src/model/user_auth/oauth.rs#43-47): `Bearer <access_token>`
+- `Authorization`: `Bearer <access_token>`
 
 **Request Body:**
 ```json
@@ -153,10 +153,10 @@
 - `201 Created`: Category created successfully.
 
 ### Get Category Details
-`GET /api/categories/:id`
+`GET /api/v1/categories/:id`
 
 **Headers:**
-- [Authorization](file:///home/kt345/Documents/my_workspace/todo-list/src/model/user_auth/oauth.rs#43-47): `Bearer <access_token>`
+- `Authorization`: `Bearer <access_token>`
 
 **Response:**
 - `200 OK`
@@ -178,10 +178,10 @@
   ```
 
 ### Update Category
-`PATCH /api/categories/:id`
+`PATCH /api/v1/categories/:id`
 
 **Headers:**
-- [Authorization](file:///home/kt345/Documents/my_workspace/todo-list/src/model/user_auth/oauth.rs#43-47): `Bearer <access_token>`
+- `Authorization`: `Bearer <access_token>`
 
 **Request Body:**
 ```json
@@ -197,10 +197,10 @@
 - `200 OK`: Update successful.
 
 ### Delete Category
-`DELETE /api/categories/:id`
+`DELETE /api/v1/categories/:id`
 
 **Headers:**
-- [Authorization](file:///home/kt345/Documents/my_workspace/todo-list/src/model/user_auth/oauth.rs#43-47): `Bearer <access_token>`
+- `Authorization`: `Bearer <access_token>`
 
 **Response:**
 - `200 OK`: Deletion successful.
@@ -210,15 +210,15 @@
 ## Tasks
 
 ### Get Tasks
-`GET /api/categories/:category_id/tasks`
+`GET /api/v1/categories/:category_id/tasks`
 
 **Headers:**
-- [Authorization](file:///home/kt345/Documents/my_workspace/todo-list/src/model/user_auth/oauth.rs#43-47): `Bearer <access_token>`
+- `Authorization`: `Bearer <access_token>`
 
 **Query Parameters:**
 - `title_pattern` (optional): Filter by title.
 - `status` (optional): Filter by status (e.g., `open`, `done`). Can be multiple.
-- [page](file:///home/kt345/Documents/my_workspace/todo-list/src/controller/category.rs#24-40) (required): Page number.
+- `page` (required): Page number.
 - `page_size` (required): Page size.
 - `sort_by` (optional): Sort field.
 
@@ -243,10 +243,10 @@
   ```
 
 ### Create Task
-`POST /api/categories/:category_id/tasks`
+`POST /api/v1/categories/:category_id/tasks`
 
 **Headers:**
-- [Authorization](file:///home/kt345/Documents/my_workspace/todo-list/src/model/user_auth/oauth.rs#43-47): `Bearer <access_token>`
+- `Authorization`: `Bearer <access_token>`
 
 **Request Body:**
 ```json
@@ -265,10 +265,10 @@
 - `201 Created`: Task created successfully.
 
 ### Get Task Details
-`GET /api/categories/:category_id/tasks/:task_id`
+`GET /api/v1/categories/:category_id/tasks/:task_id`
 
 **Headers:**
-- [Authorization](file:///home/kt345/Documents/my_workspace/todo-list/src/model/user_auth/oauth.rs#43-47): `Bearer <access_token>`
+- `Authorization`: `Bearer <access_token>`
 
 **Response:**
 - `200 OK`
@@ -290,10 +290,10 @@
   ```
 
 ### Update Task
-`PATCH /api/categories/:category_id/tasks/:task_id`
+`PATCH /api/v1/categories/:category_id/tasks/:task_id`
 
 **Headers:**
-- [Authorization](file:///home/kt345/Documents/my_workspace/todo-list/src/model/user_auth/oauth.rs#43-47): `Bearer <access_token>`
+- `Authorization`: `Bearer <access_token>`
 
 **Request Body:**
 ```json
@@ -310,10 +310,10 @@
 - `200 OK`: Update successful.
 
 ### Delete Task
-`DELETE /api/categories/:category_id/tasks/:task_id`
+`DELETE /api/v1/categories/:category_id/tasks/:task_id`
 
 **Headers:**
-- [Authorization](file:///home/kt345/Documents/my_workspace/todo-list/src/model/user_auth/oauth.rs#43-47): `Bearer <access_token>`
+- `Authorization`: `Bearer <access_token>`
 
 **Response:**
 - `200 OK`: Deletion successful.

@@ -57,6 +57,7 @@ pub struct TaskDatabase {
     pub expires_at: Option<DateTime<Utc>>,
     pub cycle_time: Option<PgInterval>,
     pub pre_notify_time: Option<PgInterval>,
+    pub next_version_id: Option<i32>,
 }
 
 #[derive(Debug, Clone, FromRow)]
@@ -106,6 +107,7 @@ pub struct TaskUpdateParams {
     pub expires_at: Option<DateTime<Utc>>,
     pub cycle_time: Option<PgInterval>,
     pub pre_notify_time: Option<PgInterval>,
+    pub next_version_id: Option<i32>,
 }
 
 #[derive(Debug, Clone)]

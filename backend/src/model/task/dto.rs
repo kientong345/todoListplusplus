@@ -3,13 +3,16 @@ use std::str::FromStr;
 use serde::{Deserialize, Serialize};
 use sqlx::PgConnection;
 
-use crate::{model::{
-    error::ModelError,
-    task::{
-        TaskCreateParams, TaskDatabase, TaskDetail, TaskMinimal, TaskSearchParams, TaskSortBy,
-        TaskStatus, TaskUpdateParams,
+use crate::{
+    model::{
+        error::ModelError,
+        task::{
+            TaskCreateParams, TaskDatabase, TaskDetail, TaskMinimal, TaskSearchParams, TaskSortBy,
+            TaskStatus, TaskUpdateParams,
+        },
     },
-}, utils::{datetime_to_string, pg_interval_to_string, string_to_datetime, string_to_pg_interval}};
+    utils::{datetime_to_string, pg_interval_to_string, string_to_datetime, string_to_pg_interval},
+};
 
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -89,14 +92,8 @@ impl TaskCreateDto {
             description: self.description.clone(),
             status: TaskStatus::from_str(&self.status).unwrap(),
             user_comment: self.user_comment.clone(),
-            expires_at: self
-                .expires_at
-                .clone()
-                .map(|s| string_to_datetime(&s)),
-            cycle_time: self
-                .cycle_time
-                .clone()
-                .map(|s| string_to_pg_interval(&s)),
+            expires_at: self.expires_at.clone().map(|s| string_to_datetime(&s)),
+            cycle_time: self.cycle_time.clone().map(|s| string_to_pg_interval(&s)),
             pre_notify_time: self
                 .pre_notify_time
                 .clone()
@@ -128,6 +125,7 @@ impl TaskUpdateDto {
             expires_at: None,
             cycle_time: None,
             pre_notify_time: None,
+            next_version_id: None,
         }
     }
 }
@@ -163,18 +161,33 @@ impl TaskScheduleDto {
             description: None,
             status: None,
             user_comment: None,
-            expires_at: self
-                .expires_at
-                .clone()
-                .map(|s| string_to_datetime(&s)),
-            cycle_time: self
-                .cycle_time
-                .clone()
-                .map(|s| string_to_pg_interval(&s)),
+            expires_at: self.expires_at.clone().map(|s| string_to_datetime(&s)),
+            cycle_time: self.cycle_time.clone().map(|s| string_to_pg_interval(&s)),
             pre_notify_time: self
                 .pre_notify_time
                 .clone()
                 .map(|s| string_to_pg_interval(&s)),
+            next_version_id: None,
+        }
+    }
+}
+
+pub struct TaskNextVersionDto {
+    pub next_version_id: i32,
+}
+
+impl TaskNextVersionDto {
+    pub fn bind(self, task_id: i32) -> TaskUpdateParams {
+        TaskUpdateParams {
+            id: task_id,
+            title: None,
+            description: None,
+            status: None,
+            user_comment: None,
+            expires_at: None,
+            cycle_time: None,
+            pre_notify_time: None,
+            next_version_id: Some(self.next_version_id),
         }
     }
 }

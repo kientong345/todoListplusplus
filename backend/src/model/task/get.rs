@@ -23,8 +23,10 @@ impl TaskDatabase {
             tsk_updated_at AS updated_at,
             tsk_expires_at AS expires_at,
             tsk_cycle_time AS cycle_time,
-            tsk_pre_notify_time AS pre_notify_time
-            FROM tasks WHERE tsk_id = $1"#,
+            tsk_pre_notify_time AS pre_notify_time,
+            tsk_next_version_id AS next_version_id
+            FROM tasks
+            WHERE tsk_id = $1 AND tsk_next_version_id IS NULL"#,
             task_id
         )
         .fetch_one(connection)
@@ -40,7 +42,7 @@ impl TaskDatabase {
             r#"SELECT cat_usr_id
             FROM categories
             JOIN tasks ON cat_id = tsk_cat_id
-            WHERE tsk_id = $1"#,
+            WHERE tsk_id = $1 AND tsk_next_version_id IS NULL"#,
             task_id
         )
         .fetch_one(connection)
@@ -71,7 +73,7 @@ impl TaskDetail {
             tsk_pre_notify_time AS pre_notify_time
             FROM tasks
             JOIN categories ON tsk_cat_id = cat_id
-            WHERE tsk_id = $1"#,
+            WHERE tsk_id = $1 AND tsk_next_version_id IS NULL"#,
             task_id
         )
         .fetch_one(connection)

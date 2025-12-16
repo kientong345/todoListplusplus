@@ -53,6 +53,7 @@ Stores tasks within categories.
 | `tsk_expires_at` | `TIMESTAMPTZ` | `DEFAULT NULL` | Expiration time of the task. |
 | `tsk_cycle_time` | `INTERVAL` | `DEFAULT NULL` | Cycle time for recurring tasks. |
 | `tsk_pre_notify_time` | `INTERVAL` | `DEFAULT NULL` | Time before expiration to notify the user. |
+| `tsk_next_version_id` | `INT` | `DEFAULT NULL`, `REFERENCES tasks(tsk_id) ON DELETE SET NULL` | ID of the next version of the task. |
 
 ## Enums
 
