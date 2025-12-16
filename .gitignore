@@ -1,3 +1,27 @@
-/target
+# General
+.DS_Store
+*.log
 
+# Backend (Rust)
+target/
 *.env
+
+# Frontend (Node)
+node_modules/
+dist/
+dist-ssr/
+*.local
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Editor
+.vscode/*
+!.vscode/extensions.json
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

@@ -8,6 +8,7 @@ use todo_list::{
     utils::get_runtime,
 };
 use tokio::net::TcpListener;
+use tower_http::cors::CorsLayer;
 
 #[tokio::main]
 async fn main() {
@@ -55,8 +56,14 @@ async fn main() {
         email_client,
     };
 
+    // test-mode
+    let cors_layer = CorsLayer::new()
+        .allow_origin(tower_http::cors::Any)
+        .allow_methods(tower_http::cors::Any)
+        .allow_headers(tower_http::cors::Any);
+
     // Create app
-    let app = app::create_app(app_state).await;
+    let app = app::create_app(app_state).await.layer(cors_layer);
 
     // Serve app
     axum::serve(listener, app)
