@@ -114,8 +114,7 @@ pub struct TaskUpdateParams {
 pub enum TaskSortBy {
     CreateTime,
     UpdateTime,
-    ExpiredTime,
-    RescheduleTime,
+    ExpireTime,
 }
 
 impl FromStr for TaskSortBy {
@@ -123,10 +122,9 @@ impl FromStr for TaskSortBy {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
-            "create_time" => Ok(TaskSortBy::CreateTime),
-            "update_time" => Ok(TaskSortBy::UpdateTime),
-            "expired_time" => Ok(TaskSortBy::ExpiredTime),
-            "reschedule_time" => Ok(TaskSortBy::RescheduleTime),
+            "latest" => Ok(TaskSortBy::CreateTime),
+            "new-update" => Ok(TaskSortBy::UpdateTime),
+            "deadline" => Ok(TaskSortBy::ExpireTime),
             _ => Err(ModelError::BadRequest(format!("Invalid TaskSortBy: {}", s))),
         }
     }

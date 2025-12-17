@@ -108,10 +108,10 @@
 - `Authorization`: `Bearer <access_token>`
 
 **Query Parameters:**
-- `name_pattern` (optional): Filter by name.
+- `namePattern` (optional): Filter by name.
 - `page` (required): Page number (0-indexed).
-- `page_size` (required): Number of items per page.
-- `sort_by` (optional): Sort field (default: `CreateTime`).
+- `pageSize` (required): Number of items per page.
+- `sortBy` (required): Sort field ('new-update', 'task-count', 'progress').
 
 **Response:**
 - `200 OK`
@@ -216,11 +216,11 @@
 - `Authorization`: `Bearer <access_token>`
 
 **Query Parameters:**
-- `title_pattern` (optional): Filter by title.
+- `titlePattern` (optional): Filter by title.
 - `status` (optional): Filter by status (e.g., `open`, `done`). Can be multiple.
 - `page` (required): Page number.
-- `page_size` (required): Page size.
-- `sort_by` (optional): Sort field.
+- `pageSize` (required): Page size.
+- `sortBy` (required): Sort field: ('latest' | 'new-update' | 'deadline').
 
 **Response:**
 - `200 OK`

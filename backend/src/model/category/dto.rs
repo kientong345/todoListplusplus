@@ -159,7 +159,7 @@ pub struct CategorySearchDto {
     pub name_pattern: Option<String>,
     pub page: i32,
     pub page_size: i32,
-    pub sort_by: String,
+    pub sort_by: String, // new_update | task_count | progress
 }
 
 impl CategorySearchDto {
@@ -169,7 +169,7 @@ impl CategorySearchDto {
             name_pattern: self.name_pattern.clone(),
             page: self.page,
             page_size: self.page_size,
-            sort_by: CategorySortBy::from_str(&self.sort_by).unwrap_or(CategorySortBy::CreateTime),
+            sort_by: CategorySortBy::from_str(&self.sort_by).unwrap_or(CategorySortBy::UpdateTime),
         }
     }
 }

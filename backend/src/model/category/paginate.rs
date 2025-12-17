@@ -17,7 +17,6 @@ impl Paginate<CategorySearchParams> for CategoryMinimal {
             params.name_pattern.clone().unwrap_or("".to_string())
         );
         let order_by = match params.sort_by {
-            CategorySortBy::CreateTime => "created_at DESC",
             CategorySortBy::UpdateTime => "updated_at DESC",
             CategorySortBy::TaskCount => "task_count DESC",
             CategorySortBy::Progress => "progress DESC",

@@ -225,7 +225,7 @@ pub struct TaskSearchDto {
     pub status: Option<Vec<String>>,
     pub page: i32,
     pub page_size: i32,
-    pub sort_by: String,
+    pub sort_by: String, // 'latest' | 'new-update' | 'deadline'
 }
 
 impl TaskSearchDto {

@@ -18,8 +18,7 @@ impl Paginate<TaskSearchParams> for TaskMinimal {
         let order_by = match params.sort_by {
             TaskSortBy::CreateTime => "tsk_created_at DESC",
             TaskSortBy::UpdateTime => "tsk_updated_at DESC",
-            TaskSortBy::ExpiredTime => "tsk_expires_at DESC",
-            TaskSortBy::RescheduleTime => "tsk_reschedule_at DESC",
+            TaskSortBy::ExpireTime => "tsk_expires_at DESC",
         };
 
         let query = format!(

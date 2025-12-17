@@ -24,7 +24,7 @@ export default function Categories() {
   const fetchCategories = async () => {
     try {
       const { data } = await api.get<PaginatedResponse<CategoryMinimal>>("/categories", {
-        params: { page: 0, page_size: 100 }, // Fetch all for now
+        params: { page: 1, pageSize: 20, sortBy: 'new-update' },
       });
       setCategories(data.items);
     } catch (error) {

@@ -69,7 +69,6 @@ pub struct CategoryUpdateParams {
 
 #[derive(Debug, Clone)]
 pub enum CategorySortBy {
-    CreateTime,
     UpdateTime,
     TaskCount,
     Progress,
@@ -80,9 +79,8 @@ impl FromStr for CategorySortBy {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s.to_lowercase().as_str() {
-            "create_time" => Ok(CategorySortBy::CreateTime),
-            "update_time" => Ok(CategorySortBy::UpdateTime),
-            "task_count" => Ok(CategorySortBy::TaskCount),
+            "new-update" => Ok(CategorySortBy::UpdateTime),
+            "task-count" => Ok(CategorySortBy::TaskCount),
             "progress" => Ok(CategorySortBy::Progress),
             _ => Err(ModelError::BadRequest(format!("Invalid sort by: {}", s))),
         }
