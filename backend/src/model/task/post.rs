@@ -2,7 +2,7 @@ use sqlx::PgConnection;
 
 use crate::model::{
     error::ModelError,
-    task::{TaskCreateParams, TaskDatabase, TaskStatus},
+    task::{TaskCreateParams, TaskDatabase},
 };
 
 impl TaskDatabase {
@@ -13,10 +13,10 @@ impl TaskDatabase {
         let task = sqlx::query_as!(
             TaskDatabase,
             r#"INSERT INTO tasks (
-                tsk_cat_id, tsk_title, tsk_description, tsk_status, tsk_usr_comment,
+                tsk_cat_id, tsk_title, tsk_description,
                 tsk_expires_at, tsk_cycle_time, tsk_pre_notify_time
             )
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+            VALUES ($1, $2, $3, $4, $5, $6)
             RETURNING
                 tsk_id AS id,
                 tsk_cat_id AS "category_id!",
@@ -33,8 +33,6 @@ impl TaskDatabase {
             params.category_id,
             params.title,
             params.description,
-            params.status.clone() as TaskStatus,
-            params.user_comment,
             params.expires_at,
             params.cycle_time,
             params.pre_notify_time,

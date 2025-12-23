@@ -10,7 +10,12 @@ export interface CategoryMinimal {
 export interface Category extends CategoryMinimal {
   createdAt: string;
   updatedAt: string;
+  openedTaskCount: number;
+  canceledTaskCount: number;
+  doneTaskCount: number;
+  progress: number;
 }
+
 
 export interface Task {
   id: string;

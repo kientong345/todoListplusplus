@@ -40,8 +40,7 @@ pub async fn get_page(
 
 pub async fn find_by_id(
     State(state): State<AppState>,
-    Path(_category_id): Path<i32>,
-    Path(task_id): Path<i32>,
+    Path((_category_id, task_id)): Path<(i32, i32)>,
     Extension(_access_claims): Extension<AccessClaims>,
 ) -> Result<Json<Value>, ControllerError> {
     let mut connection = state.db.start_transaction().await?;
@@ -90,8 +89,7 @@ pub async fn delete(
 
 pub async fn update(
     State(state): State<AppState>,
-    Path(_category_id): Path<i32>,
-    Path(task_id): Path<i32>,
+    Path((_category_id, task_id)): Path<(i32, i32)>,
     Extension(access_claims): Extension<AccessClaims>,
     Json(payload): Json<TaskUpdateDto>,
 ) -> Result<StatusCode, ControllerError> {

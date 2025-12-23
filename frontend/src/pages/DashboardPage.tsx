@@ -3,59 +3,64 @@ import { Button } from "@/components/ui/button";
 import { CategoryCard } from "@/components/features/CategoryCard";
 import type { CategoryMinimal } from "@/types";
 import { Plus } from "lucide-react";
+
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { CategoryForm } from "@/components/features/CategoryForm";
-
-
-// Mock data for initial rendering and testing
-const MOCK_CATEGORIES: CategoryMinimal[] = [
-  { id: "1", userId: "u1", name: "Work", taskCount: 12, imageUrl: null },
-  { id: "2", userId: "u1", name: "Home", taskCount: 8, imageUrl: null },
-  { id: "3", userId: "u1", name: "Groceries", taskCount: 5, imageUrl: null },
-  { id: "4", userId: "u1", name: "Study", taskCount: 3, imageUrl: null },
-  { id: "5", userId: "u1", name: "Fitness", taskCount: 7, imageUrl: null },
-  { id: "6", userId: "u1", name: "Travel", taskCount: 2, imageUrl: null },
-];
+import { categories as categoryService } from "@/services/api";
 
 export default function DashboardPage() {
-  const [categories, setCategories] = useState<CategoryMinimal[]>(MOCK_CATEGORIES);
-  const [isLoading, setIsLoading] = useState(false);
+  const [categories, setCategories] = useState<CategoryMinimal[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
 
-  useEffect(() => {
-    // TODO: Fetch categories from API
-    // setIsLoading(true);
-    // api.get('/categories').then(...)
-  }, [setCategories, setIsLoading]);
-
-
-  const handleAddCategory = (data: { name: string; imageUrl: string; description: string }) => {
+  const fetchCategories = async () => {
     setIsLoading(true);
-    // TODO: Implement actual API call
-    console.log("Adding category:", data);
-    setTimeout(() => {
-      const newCategory: CategoryMinimal = {
-        id: Math.random().toString(36).substring(2, 9),
-        userId: "u1",
-        name: data.name,
-        imageUrl: data.imageUrl || null,
-        description: data.description || null,
-        taskCount: 0,
-      };
-      setCategories([...categories, newCategory]);
+    try {
+      const response = await categoryService.getAll(1, 20, '', 'new-update');
+      setCategories(response.items);
+    } catch (error) {
+      console.error("Failed to fetch categories:", error);
+      // Optional: Add toast error handling here
+    } finally {
       setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const handleAddCategory = async (data: { name: string; imageUrl: string; description: string }) => {
+    setIsLoading(true);
+    try {
+      await categoryService.create(data);
+      await fetchCategories(); // Refresh list
       setIsAddDialogOpen(false);
-    }, 1000);
+    } catch (error) {
+      console.error("Failed to create category:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleUpdateCategory = (id: string, data: { name: string; imageUrl: string; description: string }) => {
-    setCategories(categories.map(cat => 
-      cat.id === id ? { ...cat, ...data, imageUrl: data.imageUrl || null, description: data.description || null } : cat
-    ));
+  const handleUpdateCategory = async (id: string, data: { name: string; imageUrl: string; description: string }) => {
+    try {
+      await categoryService.update(id, data);
+      setCategories(categories.map(cat => 
+        cat.id === id ? { ...cat, ...data, imageUrl: data.imageUrl || null, description: data.description || null } : cat
+      ));
+    } catch (error) {
+      console.error("Failed to update category:", error);
+    }
   };
 
-  const handleDeleteCategory = (id: string) => {
-    setCategories(categories.filter(cat => cat.id !== id));
+  const handleDeleteCategory = async (id: string) => {
+    try {
+       await categoryService.delete(id);
+       setCategories(categories.filter(cat => cat.id !== id));
+    } catch (error) {
+      console.error("Failed to delete category:", error);
+    }
   };
 
   return (
@@ -90,7 +95,7 @@ export default function DashboardPage() {
         </Dialog>
       </div>
 
-      {isLoading && !isAddDialogOpen ? (
+      {isLoading && categories.length === 0 ? (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {[...Array(4)].map((_, i) => (
             <div key={i} className="h-48 rounded-xl bg-muted animate-pulse" />
@@ -108,10 +113,9 @@ export default function DashboardPage() {
           ))}
         </div>
       ) : (
-
         <div className="text-center py-20 border-2 border-dashed rounded-2xl bg-muted/30">
           <p className="text-muted-foreground">No categories found. Create your first one!</p>
-          <Button variant="link" className="mt-2">
+          <Button variant="link" className="mt-2" onClick={() => setIsAddDialogOpen(true)}>
             Add Category
           </Button>
         </div>
@@ -119,3 +123,4 @@ export default function DashboardPage() {
     </div>
   );
 }
+

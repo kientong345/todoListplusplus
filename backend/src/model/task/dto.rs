@@ -77,8 +77,6 @@ impl From<TaskDetail> for TaskDetailDto {
 pub struct TaskCreateDto {
     pub title: String,
     pub description: Option<String>,
-    pub status: String,
-    pub user_comment: Option<String>,
     pub expires_at: Option<String>,
     pub cycle_time: Option<String>,
     pub pre_notify_time: Option<String>,
@@ -90,8 +88,6 @@ impl TaskCreateDto {
             category_id,
             title: self.title.clone(),
             description: self.description.clone(),
-            status: TaskStatus::from_str(&self.status).unwrap(),
-            user_comment: self.user_comment.clone(),
             expires_at: self.expires_at.clone().map(|s| string_to_datetime(&s)),
             cycle_time: self.cycle_time.clone().map(|s| string_to_pg_interval(&s)),
             pre_notify_time: self

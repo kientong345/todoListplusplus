@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useAuth } from "@/contexts/AuthContext";
+import { auth as authService } from "@/services/api";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -13,6 +15,8 @@ export default function RegisterPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+  const { login } = useAuth();
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (password !== confirmPassword) {
@@ -20,12 +24,21 @@ export default function RegisterPage() {
       return;
     }
     setIsLoading(true);
-    // TODO: Implement actual registration logic with axios
-    console.log("Register with:", { displayName, email, password });
-    setTimeout(() => {
+    try {
+      // Register
+      await authService.register(displayName, email, password);
+      
+      // Auto login after registration
+      const { access_token } = await authService.login(email, password);
+      login(access_token);
+      
+      navigate("/");
+    } catch (error) {
+      console.error("Registration failed", error);
+      // Optional: Show error
+    } finally {
       setIsLoading(false);
-      navigate("/login");
-    }, 1000);
+    }
   };
 
   const handleGoogleLogin = () => {

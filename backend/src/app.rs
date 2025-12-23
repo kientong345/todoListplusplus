@@ -26,6 +26,8 @@ pub async fn create_app(state: AppState) -> Router {
         .merge(routes::user::create_auth_route(state.clone()))
         // category routes
         .merge(routes::category::create_route(state.clone()))
+        // task routes
+        .merge(routes::task::create_route(state.clone()))
         // default routes
         .merge(routes::create_default_route())
 }

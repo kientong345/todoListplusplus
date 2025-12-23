@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
-import { ListTodo, User, Settings, LogOut, UserCircle } from "lucide-react";
+import { ListTodo, Settings, LogOut, UserCircle } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { 
   DropdownMenu, 
@@ -10,6 +11,7 @@ import {
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useAuth } from "@/contexts/AuthContext";
 
 // Mock User Data (Replace with actual auth context later)
 const MOCK_USER = {
@@ -19,9 +21,10 @@ const MOCK_USER = {
 };
 
 export function Navbar() {
+  const { isAuthenticated, logout } = useAuth();
+  
   const handleLogout = () => {
-    console.log("Logout clicked");
-    // TODO: Implement logout logic
+    logout();
   };
 
   return (
@@ -40,45 +43,47 @@ export function Navbar() {
         </div>
 
         <div className="flex items-center space-x-4">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative h-10 w-full justify-start gap-2 rounded-full px-2 md:w-auto hover:bg-muted">
-                <Avatar className="h-8 w-8">
-                  <AvatarImage src={MOCK_USER.imageUrl} alt={MOCK_USER.displayName} />
-                  <AvatarFallback>{MOCK_USER.displayName.charAt(0)}</AvatarFallback>
-                </Avatar>
-                <span className="hidden md:inline-flex font-medium text-sm">
-                  {MOCK_USER.displayName}
-                </span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56" align="end" forceMount>
-              <DropdownMenuLabel className="font-normal">
-                <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">{MOCK_USER.displayName}</p>
-                  <p className="text-xs leading-none text-muted-foreground">
-                    {MOCK_USER.email}
-                  </p>
-                </div>
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <Link to="/profile">
+          {isAuthenticated && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="relative h-10 w-full justify-start gap-2 rounded-full px-2 md:w-auto hover:bg-muted">
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src={MOCK_USER.imageUrl} alt={MOCK_USER.displayName} />
+                    <AvatarFallback>{MOCK_USER.displayName.charAt(0)}</AvatarFallback>
+                  </Avatar>
+                  <span className="hidden md:inline-flex font-medium text-sm">
+                    {MOCK_USER.displayName}
+                  </span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56" align="end" forceMount>
+                <DropdownMenuLabel className="font-normal">
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium leading-none">{MOCK_USER.displayName}</p>
+                    <p className="text-xs leading-none text-muted-foreground">
+                      {MOCK_USER.email}
+                    </p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <Link to="/profile">
+                  <DropdownMenuItem className="cursor-pointer">
+                    <UserCircle className="mr-2 h-4 w-4" />
+                    <span>Profile</span>
+                  </DropdownMenuItem>
+                </Link>
                 <DropdownMenuItem className="cursor-pointer">
-                  <UserCircle className="mr-2 h-4 w-4" />
-                  <span>Profile</span>
+                  <Settings className="mr-2 h-4 w-4" />
+                  <span>Preferences</span>
                 </DropdownMenuItem>
-              </Link>
-              <DropdownMenuItem className="cursor-pointer">
-                <Settings className="mr-2 h-4 w-4" />
-                <span>Preferences</span>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem className="cursor-pointer text-destructive focus:text-destructive" onClick={handleLogout}>
-                <LogOut className="mr-2 h-4 w-4" />
-                <span>Log out</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem className="cursor-pointer text-destructive focus:text-destructive" onClick={handleLogout}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Log out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
       </div>
     </header>

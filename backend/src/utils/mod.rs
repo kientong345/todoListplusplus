@@ -109,7 +109,21 @@ pub fn datetime_to_string(datetime: DateTime<Utc>) -> String {
 }
 
 pub fn string_to_datetime(datetime: &str) -> DateTime<Utc> {
-    DateTime::parse_from_rfc3339(datetime).unwrap().into()
+    println!("datetime: {}", datetime);
+
+    // Try parsing as RFC3339 first
+    if let Ok(dt) = DateTime::parse_from_rfc3339(datetime) {
+        return dt.into();
+    }
+
+    // Try parsing as simple date YYYY-MM-DD by appending default time
+    let datetime_with_time = format!("{}T00:00:00Z", datetime);
+    if let Ok(dt) = DateTime::parse_from_rfc3339(&datetime_with_time) {
+        return dt.into();
+    }
+
+    // If all else fails, panic (or you could return a Result if signature changed)
+    panic!("Failed to parse datetime: {}", datetime);
 }
 
 pub fn pg_interval_to_string(interval: PgInterval) -> String {
@@ -120,6 +134,7 @@ pub fn pg_interval_to_string(interval: PgInterval) -> String {
 }
 
 pub fn string_to_pg_interval(interval: &str) -> PgInterval {
+    println!("interval: {}", interval);
     let parts: Vec<&str> = interval.split(' ').collect();
     let months = parts[0].parse::<i32>().unwrap();
     let days = parts[1].parse::<i32>().unwrap();

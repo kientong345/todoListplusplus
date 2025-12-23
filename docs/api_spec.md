@@ -253,8 +253,6 @@
 {
   "title": "New Task",
   "description": "Task description",
-  "status": "open",
-  "userComment": "Important",
   "expiresAt": "2023-01-02T00:00:00Z",
   "cycleTime": "1 day",
   "preNotifyTime": "1 hour"

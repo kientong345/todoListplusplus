@@ -7,18 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import type { User } from "@/types";
 import { Loader2 } from "lucide-react";
-
-
-// Mock Data
-const MOCK_USER: User = {
-  id: "u1",
-  displayName: "John Doe",
-  email: "john@example.com",
-  avatarUrl: "https://github.com/shadcn.png",
-  description: "I love coding and organizing my life with this app!",
-  createdAt: "2023-01-01T00:00:00Z",
-  updatedAt: "2023-01-01T00:00:00Z",
-};
+import { user as userService } from "@/services/api";
 
 export default function ProfilePage() {
   const [user, setUser] = useState<User | null>(null);
@@ -31,29 +20,39 @@ export default function ProfilePage() {
   const [description, setDescription] = useState("");
 
   useEffect(() => {
-    // TODO: Fetch user from API (GET /api/v1/users/me)
-    setTimeout(() => {
-      setUser(MOCK_USER);
-      setDisplayName(MOCK_USER.displayName);
-      setAvatarUrl(MOCK_USER.avatarUrl || "");
-      setDescription(MOCK_USER.description || "");
-      setIsLoading(false);
-    }, 500);
+    const fetchUser = async () => {
+      setIsLoading(true);
+      try {
+        const userData = await userService.getMe();
+        setUser(userData);
+        setDisplayName(userData.displayName);
+        setAvatarUrl(userData.avatarUrl || "");
+        setDescription(userData.description || "");
+      } catch (error) {
+        console.error("Failed to fetch user:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchUser();
   }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
     
-    // TODO: Update user via API (PATCH /api/v1/users/me)
-    console.log("Updating profile:", { displayName, avatarUrl, description });
-    
-    setTimeout(() => {
+    try {
+      await userService.updateMe({ displayName, avatarUrl: avatarUrl || null, description: description || null });
+      // Update local state to reflect changes
       if (user) {
         setUser({ ...user, displayName, avatarUrl, description });
       }
+      // Optional: Toast success
+    } catch (error) {
+      console.error("Failed to update profile:", error);
+    } finally {
       setIsSaving(false);
-    }, 1000);
+    }
   };
 
   if (isLoading) {
@@ -154,3 +153,4 @@ export default function ProfilePage() {
     </div>
   );
 }
+

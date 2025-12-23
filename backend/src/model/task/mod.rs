@@ -90,8 +90,6 @@ pub struct TaskCreateParams {
     pub category_id: i32,
     pub title: String,
     pub description: Option<String>,
-    pub status: TaskStatus,
-    pub user_comment: Option<String>,
     pub expires_at: Option<DateTime<Utc>>,
     pub cycle_time: Option<PgInterval>,
     pub pre_notify_time: Option<PgInterval>,

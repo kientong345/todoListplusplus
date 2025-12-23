@@ -3,85 +3,117 @@ import { useParams, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { CategoryDetail } from "@/components/features/CategoryDetail";
 import { TaskList } from "@/components/features/TaskList";
-import { ArrowLeft, Plus } from "lucide-react";
-import type { Task } from "@/types";
+import { ArrowLeft, Plus, Loader2 } from "lucide-react";
+import type { Task, Category } from "@/types";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { TaskForm } from "@/components/features/TaskForm";
-
-// Mock Data
-const MOCK_CATEGORY_DETAIL = {
-  id: "1",
-  name: "Work Project",
-  description: "Tasks related to the Q4 product launch and marketing campaign.",
-  imageUrl: null,
-  taskCount: 12,
-  openedTaskCount: 5,
-  canceledTaskCount: 1,
-  doneTaskCount: 6,
-  progress: 50,
-};
-
-const MOCK_TASKS: Task[] = [
-  { id: "101", categoryId: "1", userId: "u1", title: "Review Q4 Marketing Plan", description: "Analyze the budget and channels.", status: "open", expiresAt: "2023-10-28", cycleTime: "weekly", createdAt: "", updatedAt: "" },
-  { id: "102", categoryId: "1", userId: "u1", title: "Finalize Budget Proposal", description: "Get sign-off from finance.", status: "open", expiresAt: "2023-10-30", createdAt: "", updatedAt: "" },
-  { id: "103", categoryId: "1", userId: "u1", title: "Team Sync Meeting", status: "done", expiresAt: "2023-10-25", cycleTime: "daily", createdAt: "", updatedAt: "" },
-  { id: "104", categoryId: "1", userId: "u1", title: "Update Stakeholders", status: "open", expiresAt: "2023-11-01", createdAt: "", updatedAt: "" },
-  { id: "105", categoryId: "1", userId: "u1", title: "Draft Launch Email", status: "open", expiresAt: "2023-11-05", createdAt: "", updatedAt: "" },
-  { id: "106", categoryId: "1", userId: "u1", title: "Cancelled Task Example", status: "canceled", expiresAt: "2023-10-20", createdAt: "", updatedAt: "" },
-];
+import { categories as categoryService, tasks as taskService } from "@/services/api";
 
 export default function CategoryPage() {
-  const { id } = useParams();
-  const [tasks, setTasks] = useState<Task[]>(MOCK_TASKS);
-  const [isLoading, setIsLoading] = useState(false);
+  const { id } = useParams<{ id: string }>();
+  
+  const [category, setCategory] = useState<Category | null>(null);
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isAddTaskDialogOpen, setIsAddTaskDialogOpen] = useState(false);
 
-  useEffect(() => {
-    // TODO: Fetch category details and tasks
-    setIsLoading(true);
-    setTimeout(() => setIsLoading(false), 500);
-  }, [id]);
+  // Default pagination params as requested (page=1 logic handled as index 1)
+  const [page] = useState(1); 
 
-  const handleToggleStatus = (taskId: string) => {
-    setTasks(tasks.map(t => 
-      t.id === taskId 
-        ? { ...t, status: t.status === 'done' ? 'open' : 'done' } 
-        : t
-    ));
-  };
+  const PAGE_SIZE = 20;
 
-  const handleAddTask = (data: Partial<Task>) => {
+  const fetchData = async () => {
+    if (!id) return;
     setIsLoading(true);
-    // TODO: Connect to API
-    setTimeout(() => {
-      const newTask: Task = {
-        id: Math.random().toString(36).substr(2, 9),
-        categoryId: id || "1",
-        userId: "u1",
-        title: data.title!,
-        description: data.description,
-        status: "open",
-        cycleTime: data.cycleTime || null,
-        expiresAt: data.expiresAt || null,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-      setTasks([newTask, ...tasks]);
+    try {
+      const [categoryData, tasksData] = await Promise.all([
+        categoryService.getOne(id),
+        taskService.getAll(id, page, PAGE_SIZE, [], '', 'latest')
+      ]);
+      setCategory(categoryData);
+      setTasks(tasksData.items);
+    } catch (error) {
+      console.error("Failed to fetch data:", error);
+    } finally {
       setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, [id, page]);
+
+  const handleToggleStatus = async (taskId: string) => {
+    const task = tasks.find(t => t.id === taskId);
+    if (!task || !id) return;
+    
+    // Toggle logic: done -> open, open/in_progress -> done
+    const newStatus = task.status === 'done' ? 'open' : 'done';
+    
+    // Optimistic update
+    setTasks(tasks.map(t => t.id === taskId ? { ...t, status: newStatus } : t));
+    
+    try {
+      await taskService.update(id, taskId, { status: newStatus });
+      // Refresh category stats if needed, or handle locally
+      fetchData(); // Simplest way to sync counters
+    } catch (error) {
+      console.error("Failed to update status:", error);
+      fetchData(); // Revert on error
+    }
+  };
+
+  const handleAddTask = async (data: Partial<Task>) => {
+    if (!id) return;
+    setIsLoading(true);
+    try {
+      await taskService.create(id, data);
+      await fetchData();
       setIsAddTaskDialogOpen(false);
-    }, 800);
+    } catch (error) {
+       console.error("Failed to create task:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
 
-  const handleUpdateTask = (taskId: string, data: Partial<Task>) => {
-    setTasks(tasks.map(t => 
-      t.id === taskId ? { ...t, ...data } : t
-    ));
+  const handleUpdateTask = async (taskId: string, data: Partial<Task>) => {
+    if (!id) return;
+    try {
+      await taskService.update(id, taskId, data);
+      await fetchData();
+    } catch (error) {
+      console.error("Failed to update task:", error);
+    }
   };
 
-  const handleDeleteTask = (taskId: string) => {
-    setTasks(tasks.filter(t => t.id !== taskId));
+  const handleDeleteTask = async (taskId: string) => {
+    if (!id) return;
+    try {
+      await taskService.delete(id, taskId);
+      await fetchData();
+    } catch (error) {
+      console.error("Failed to delete task:", error);
+    }
   };
+
+  if (isLoading && !category) {
+    return (
+      <div className="flex h-[50vh] items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  if (!category) {
+    return (
+      <div className="text-center py-20">
+         <h2 className="text-xl font-semibold">Category not found</h2>
+         <Button asChild variant="link" className="mt-4"><Link to="/">Go back home</Link></Button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
@@ -89,10 +121,10 @@ export default function CategoryPage() {
         <Button variant="ghost" size="icon" asChild>
           <Link to="/"><ArrowLeft className="w-5 h-5" /></Link>
         </Button>
-        <h2 className="text-lg font-semibold text-muted-foreground">Back to Dashboard</h2>
+        <h2 className="text-lg font-semibold text-muted-foreground text-foreground">Back to Dashboard</h2>
       </div>
 
-      <CategoryDetail category={MOCK_CATEGORY_DETAIL} />
+      <CategoryDetail category={category} />
 
       <div className="space-y-4">
         <div className="flex items-center justify-between">
@@ -131,5 +163,6 @@ export default function CategoryPage() {
     </div>
   );
 }
+
 
 
