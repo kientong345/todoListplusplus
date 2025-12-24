@@ -54,6 +54,30 @@
   ```
   *Note: Refresh token is set in a `HttpOnly` cookie.*
 
+### Refresh
+`POST /api/v1/auth/refresh`
+
+**Headers:*
+- `Cookie`: `refresh_token=<refresh_token>`
+
+**Response:*
+- `200 OK`
+  ```json
+  {
+    "access_token": "jwt_token_here"
+  }
+  ```
+  *Note: Refresh token is set in a `HttpOnly` cookie.*
+
+### Logout
+`POST /api/v1/auth/logout`
+
+**Headers:*
+- `Cookie`: `refresh_token=<refresh_token>`
+
+**Response:*
+- `200 OK`
+
 ---
 
 ## Users

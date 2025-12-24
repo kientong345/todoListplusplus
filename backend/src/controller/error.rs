@@ -27,6 +27,9 @@ pub enum ControllerError {
 
     #[error("token exchange error: {0}")]
     TokenExchange(#[from] reqwest::Error),
+
+    #[error("unauthorized")]
+    Unauthorized,
 }
 
 impl ControllerError {
@@ -50,6 +53,7 @@ impl ControllerError {
             ControllerError::InvalidRegistration(_) => (StatusCode::BAD_REQUEST, 40010),
             ControllerError::InvalidLoginForm(_) => (StatusCode::BAD_REQUEST, 40011),
             ControllerError::TokenExchange(_) => (StatusCode::INTERNAL_SERVER_ERROR, 50011),
+            ControllerError::Unauthorized => (StatusCode::UNAUTHORIZED, 401),
         }
     }
 }

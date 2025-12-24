@@ -51,7 +51,7 @@ pub async fn handle_login(
         .login(&mut *connection, login_form)
         .await?;
 
-    let cookie: Cookie = Cookie::build(refresh_token)
+    let cookie: Cookie = Cookie::build(("refresh_token", refresh_token))
         .http_only(true)
         .secure(false)
         .same_site(SameSite::Lax)
@@ -87,7 +87,7 @@ pub async fn handle_google_login(
 
     connection.commit().await?;
 
-    let cookie: Cookie = Cookie::build(refresh_token)
+    let cookie: Cookie = Cookie::build(("refresh_token", refresh_token))
         .http_only(true)
         .secure(false)
         .same_site(SameSite::Lax)
@@ -106,12 +106,47 @@ pub async fn handle_google_login(
 
 pub async fn handle_refresh(
     State(state): State<AppState>,
+    jar: CookieJar,
 ) -> Result<(CookieJar, Json<Value>), ControllerError> {
-    todo!()
+    let old_refresh_token = jar
+        .get("refresh_token")
+        .ok_or(ControllerError::Unauthorized)?
+        .value()
+        .to_string();
+
+    let mut connection = state.db.start_transaction().await?;
+    let (access_token, refresh_token) = state
+        .auth_service
+        .refresh(&mut *connection, old_refresh_token)
+        .await?;
+    connection.commit().await?;
+
+    let cookie: Cookie = Cookie::build(("refresh_token", refresh_token))
+        .http_only(true)
+        .secure(false)
+        .same_site(SameSite::Lax)
+        .path("/")
+        .into();
+    Ok((
+        jar.add(cookie),
+        Json(json!({
+            "access_token": access_token,
+        })),
+    ))
 }
 
 pub async fn handle_logout(
-    State(state): State<AppState>,
+    State(_state): State<AppState>,
+    jar: CookieJar,
 ) -> Result<(CookieJar, Json<Value>), ControllerError> {
-    todo!()
+    let remove_cookie: Cookie = Cookie::build(("refresh_token", ""))
+        .http_only(true)
+        .secure(false)
+        .same_site(SameSite::Lax)
+        .path("/")
+        .into();
+    Ok((
+        jar.add(remove_cookie),
+        Json(json!({ "message": "Logout successful" })),
+    ))
 }

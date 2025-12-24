@@ -1,5 +1,6 @@
 use serde::de::DeserializeOwned;
 use sqlx::PgConnection;
+use uuid::Uuid;
 
 use crate::{
     config::auth::AuthConfig,
@@ -113,5 +114,25 @@ impl AuthService {
         let (access_token, refresh_token) = self.generate_token_pair(&user);
 
         Ok((user, access_token, refresh_token))
+    }
+
+    pub async fn refresh(
+        &self,
+        conn: &mut PgConnection,
+        refresh_token: String,
+    ) -> Result<(String, String), ServiceError> {
+        let claims = self.decode_jwt::<RefreshClaims>(&refresh_token)?;
+        let uid = Uuid::parse_str(&claims.sub).unwrap();
+        let user = UserDatabase::get_by_id(uid, conn).await?;
+        let (access_token, refresh_token) = self.generate_token_pair(&user);
+        Ok((access_token, refresh_token))
+    }
+
+    pub async fn logout(
+        &self,
+        _conn: &mut PgConnection,
+        _refresh_token: String,
+    ) -> Result<(), ServiceError> {
+        Ok(())
     }
 }
