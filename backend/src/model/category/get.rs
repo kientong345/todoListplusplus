@@ -1,4 +1,5 @@
 use sqlx::PgConnection;
+use uuid::Uuid;
 
 use crate::model::{
     category::{CategoryDatabase, CategoryDetail},
@@ -7,7 +8,7 @@ use crate::model::{
 
 impl CategoryDatabase {
     pub async fn get_by_id(
-        category_id: i32,
+        category_id: Uuid,
         connection: &mut PgConnection,
     ) -> Result<CategoryDatabase, ModelError> {
         let category = sqlx::query_as!(
@@ -27,7 +28,7 @@ impl CategoryDatabase {
 
 impl CategoryDetail {
     pub async fn get_by_id(
-        category_id: i32,
+        category_id: Uuid,
         connection: &mut PgConnection,
     ) -> Result<CategoryDetail, ModelError> {
         let category = sqlx::query_as!(

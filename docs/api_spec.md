@@ -68,7 +68,7 @@
 - `200 OK`
   ```json
   {
-    "id": 1,
+    "id": "uuid",
     "displayName": "John Doe",
     "email": "john@example.com",
     "avatarUrl": "https://example.com/avatar.jpg",
@@ -119,8 +119,8 @@
   {
     "items": [
       {
-        "id": 1,
-        "userId": 1,
+        "id": "uuid",
+        "userId": "uuid",
         "name": "Work",
         "imageUrl": "https://example.com/work.jpg",
         "description": "Work related tasks",
@@ -162,8 +162,8 @@
 - `200 OK`
   ```json
   {
-    "id": 1,
-    "userId": 1,
+    "id": "uuid",
+    "userId": "uuid",
     "name": "Work",
     "imageUrl": "https://example.com/work.jpg",
     "description": "Work related tasks",
@@ -228,7 +228,7 @@
   {
     "items": [
       {
-        "id": 1,
+        "id": "uuid",
         "title": "Finish report",
         "status": "open",
         "expiresAt": "2023-01-02T00:00:00Z",
@@ -272,8 +272,8 @@
 - `200 OK`
   ```json
   {
-    "id": 1,
-    "categoryId": 1,
+    "id": "uuid",
+    "categoryId": "uuid",
     "categoryName": "Work",
     "title": "Finish report",
     "description": "Task description",

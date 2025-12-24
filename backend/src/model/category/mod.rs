@@ -1,8 +1,8 @@
 use std::str::FromStr;
 
 use chrono::{DateTime, Utc};
-use serde::Serialize;
 use sqlx::prelude::FromRow;
+use uuid::Uuid;
 
 use crate::model::error::ModelError;
 
@@ -15,8 +15,8 @@ pub mod post;
 
 #[derive(Debug, Clone, FromRow)]
 pub struct CategoryDatabase {
-    pub id: i32,
-    pub user_id: i32,
+    pub id: Uuid,
+    pub user_id: Uuid,
     pub name: String,
     pub image_url: Option<String>,
     pub description: Option<String>,
@@ -24,10 +24,10 @@ pub struct CategoryDatabase {
     pub updated_at: Option<DateTime<Utc>>,
 }
 
-#[derive(Debug, Clone, FromRow, Serialize)]
+#[derive(Debug, Clone, FromRow)]
 pub struct CategoryMinimal {
-    pub id: i32,
-    pub user_id: i32,
+    pub id: Uuid,
+    pub user_id: Uuid,
     pub name: String,
     pub image_url: Option<String>,
     pub description: Option<String>,
@@ -37,8 +37,8 @@ pub struct CategoryMinimal {
 
 #[derive(Debug, Clone, FromRow)]
 pub struct CategoryDetail {
-    pub id: i32,
-    pub user_id: i32,
+    pub id: Uuid,
+    pub user_id: Uuid,
     pub name: String,
     pub image_url: Option<String>,
     pub description: Option<String>,
@@ -53,7 +53,7 @@ pub struct CategoryDetail {
 
 #[derive(Debug, Clone)]
 pub struct CategoryCreateParams {
-    pub user_id: i32,
+    pub user_id: Uuid,
     pub name: String,
     pub image_url: Option<String>,
     pub description: Option<String>,
@@ -61,7 +61,7 @@ pub struct CategoryCreateParams {
 
 #[derive(Debug, Clone)]
 pub struct CategoryUpdateParams {
-    pub id: i32,
+    pub id: Uuid,
     pub name: Option<String>,
     pub image_url: Option<String>,
     pub description: Option<String>,
@@ -89,7 +89,7 @@ impl FromStr for CategorySortBy {
 
 #[derive(Debug, Clone)]
 pub struct CategorySearchParams {
-    pub user_id: i32,
+    pub user_id: Uuid,
     pub name_pattern: Option<String>,
     pub page: i32,
     pub page_size: i32,

@@ -1,4 +1,5 @@
 use sqlx::PgConnection;
+use uuid::Uuid;
 
 use crate::model::{
     category::{CategoryDatabase, CategoryUpdateParams},
@@ -10,22 +11,67 @@ impl CategoryDatabase {
         params: &CategoryUpdateParams,
         connection: &mut PgConnection,
     ) -> Result<CategoryDatabase, ModelError> {
-        let category = sqlx::query_as!(
-            CategoryDatabase,
-            r#"UPDATE categories
-            SET cat_name = $2, cat_image_url = $3, cat_description = $4
-            WHERE cat_id = $1
-            RETURNING
-                cat_id AS id, cat_usr_id AS "user_id!", cat_name AS name,
-                cat_image_url AS image_url, cat_description AS description,
-                cat_created_at AS created_at, cat_updated_at AS updated_at"#,
-            params.id,
-            params.name,
-            params.image_url,
-            params.description,
-        )
-        .fetch_one(connection)
-        .await?;
+        if let Some(name) = &params.name {
+            Self::update_name(params.id, name, connection).await?;
+        }
+        if let Some(image_url) = &params.image_url {
+            Self::update_image_url(params.id, image_url, connection).await?;
+        }
+        if let Some(description) = &params.description {
+            Self::update_description(params.id, description, connection).await?;
+        }
+        let category = Self::get_by_id(params.id, connection).await?;
         Ok(category)
+    }
+
+    async fn update_name(
+        category_id: Uuid,
+        name: &str,
+        connection: &mut PgConnection,
+    ) -> Result<(), ModelError> {
+        sqlx::query!(
+            r#"UPDATE categories
+            SET cat_name = $2
+            WHERE cat_id = $1"#,
+            category_id,
+            name,
+        )
+        .execute(connection)
+        .await?;
+        Ok(())
+    }
+
+    async fn update_image_url(
+        category_id: Uuid,
+        image_url: &str,
+        connection: &mut PgConnection,
+    ) -> Result<(), ModelError> {
+        sqlx::query!(
+            r#"UPDATE categories
+            SET cat_image_url = $2
+            WHERE cat_id = $1"#,
+            category_id,
+            image_url,
+        )
+        .execute(connection)
+        .await?;
+        Ok(())
+    }
+
+    async fn update_description(
+        category_id: Uuid,
+        description: &str,
+        connection: &mut PgConnection,
+    ) -> Result<(), ModelError> {
+        sqlx::query!(
+            r#"UPDATE categories
+            SET cat_description = $2
+            WHERE cat_id = $1"#,
+            category_id,
+            description,
+        )
+        .execute(connection)
+        .await?;
+        Ok(())
     }
 }

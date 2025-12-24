@@ -3,6 +3,7 @@ use std::str::FromStr;
 use chrono::{DateTime, Utc};
 use serde::Serialize;
 use sqlx::{postgres::types::PgInterval, prelude::FromRow};
+use uuid::Uuid;
 
 use crate::model::error::ModelError;
 
@@ -46,8 +47,8 @@ impl FromStr for TaskStatus {
 
 #[derive(Debug, Clone, FromRow)]
 pub struct TaskDatabase {
-    pub id: i32,
-    pub category_id: i32,
+    pub id: Uuid,
+    pub category_id: Uuid,
     pub title: String,
     pub description: Option<String>,
     pub status: TaskStatus,
@@ -57,12 +58,12 @@ pub struct TaskDatabase {
     pub expires_at: Option<DateTime<Utc>>,
     pub cycle_time: Option<PgInterval>,
     pub pre_notify_time: Option<PgInterval>,
-    pub next_version_id: Option<i32>,
+    pub next_version_id: Option<Uuid>,
 }
 
 #[derive(Debug, Clone, FromRow)]
 pub struct TaskMinimal {
-    pub id: i32,
+    pub id: Uuid,
     pub title: String,
     pub status: TaskStatus,
     pub expires_at: Option<DateTime<Utc>>,
@@ -71,8 +72,8 @@ pub struct TaskMinimal {
 
 #[derive(Debug, Clone, FromRow)]
 pub struct TaskDetail {
-    pub id: i32,
-    pub category_id: i32,
+    pub id: Uuid,
+    pub category_id: Uuid,
     pub category_name: String,
     pub title: String,
     pub description: Option<String>,
@@ -87,7 +88,7 @@ pub struct TaskDetail {
 
 #[derive(Debug, Clone)]
 pub struct TaskCreateParams {
-    pub category_id: i32,
+    pub category_id: Uuid,
     pub title: String,
     pub description: Option<String>,
     pub expires_at: Option<DateTime<Utc>>,
@@ -97,7 +98,7 @@ pub struct TaskCreateParams {
 
 #[derive(Debug, Clone)]
 pub struct TaskUpdateParams {
-    pub id: i32,
+    pub id: Uuid,
     pub title: Option<String>,
     pub description: Option<String>,
     pub status: Option<TaskStatus>,
@@ -105,7 +106,7 @@ pub struct TaskUpdateParams {
     pub expires_at: Option<DateTime<Utc>>,
     pub cycle_time: Option<PgInterval>,
     pub pre_notify_time: Option<PgInterval>,
-    pub next_version_id: Option<i32>,
+    pub next_version_id: Option<Uuid>,
 }
 
 #[derive(Debug, Clone)]
@@ -130,7 +131,7 @@ impl FromStr for TaskSortBy {
 
 #[derive(Debug, Clone)]
 pub struct TaskSearchParams {
-    pub category_id: i32,
+    pub category_id: Uuid,
     pub title_pattern: Option<String>,
     pub status: Option<Vec<TaskStatus>>,
     pub page: i32,

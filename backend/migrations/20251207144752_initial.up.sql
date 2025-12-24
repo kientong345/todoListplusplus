@@ -5,7 +5,7 @@ CREATE TYPE task_status AS ENUM ('open', 'cancel', 'done');
 
 -- USERS
 CREATE TABLE IF NOT EXISTS users (
-    usr_id              SERIAL PRIMARY KEY,
+    usr_id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     usr_google_id       TEXT UNIQUE,
     usr_display_name    VARCHAR(100) NOT NULL,
     usr_email           VARCHAR(100) UNIQUE NOT NULL,
@@ -21,8 +21,8 @@ CREATE TABLE IF NOT EXISTS users (
 
 -- CATEGORIES
 CREATE TABLE IF NOT EXISTS categories (
-    cat_id              SERIAL PRIMARY KEY,
-    cat_usr_id          INT NOT NULL REFERENCES users(usr_id) ON DELETE CASCADE,
+    cat_id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    cat_usr_id          UUID NOT NULL REFERENCES users(usr_id) ON DELETE CASCADE,
     cat_name            TEXT NOT NULL,
     cat_image_url       TEXT,
     cat_description     TEXT,
@@ -34,8 +34,8 @@ CREATE TABLE IF NOT EXISTS categories (
 
 -- TASKS
 CREATE TABLE IF NOT EXISTS tasks (
-    tsk_id              SERIAL PRIMARY KEY,
-    tsk_cat_id          INT NOT NULL REFERENCES categories(cat_id) ON DELETE CASCADE,
+    tsk_id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tsk_cat_id          UUID NOT NULL REFERENCES categories(cat_id) ON DELETE CASCADE,
     tsk_title           TEXT NOT NULL,
     tsk_description     TEXT,
     tsk_status          task_status NOT NULL DEFAULT 'open',
@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS tasks (
     tsk_expires_at      TIMESTAMPTZ DEFAULT NULL,
     tsk_cycle_time      INTERVAL DEFAULT NULL, -- reschedule_time = (tsk_expires_at + tsk_cycle_time)
     tsk_pre_notify_time INTERVAL DEFAULT NULL, -- time = (tsk_expires_at - tsk_pre_notify_time)
-    tsk_next_version_id INT DEFAULT NULL REFERENCES tasks(tsk_id) ON DELETE SET NULL, -- use to find the latest version of cycle task
+    tsk_next_version_id UUID DEFAULT NULL REFERENCES tasks(tsk_id) ON DELETE SET NULL, -- use to find the latest version of cycle task
 
     CONSTRAINT unique_task_per_category UNIQUE (tsk_cat_id, tsk_title)
 );

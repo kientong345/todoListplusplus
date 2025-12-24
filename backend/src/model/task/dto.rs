@@ -2,6 +2,7 @@ use std::str::FromStr;
 
 use serde::{Deserialize, Serialize};
 use sqlx::PgConnection;
+use uuid::Uuid;
 
 use crate::{
     model::{
@@ -17,7 +18,7 @@ use crate::{
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct TaskMinimalDto {
-    pub id: i32,
+    pub id: String,
     pub title: String,
     pub status: String,
     pub expires_at: Option<String>,
@@ -27,7 +28,7 @@ pub struct TaskMinimalDto {
 impl From<TaskMinimal> for TaskMinimalDto {
     fn from(value: TaskMinimal) -> Self {
         TaskMinimalDto {
-            id: value.id,
+            id: value.id.to_string(),
             title: value.title,
             status: value.status.to_string(),
             expires_at: value.expires_at.map(|dt| datetime_to_string(dt)),
@@ -39,8 +40,8 @@ impl From<TaskMinimal> for TaskMinimalDto {
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct TaskDetailDto {
-    pub id: i32,
-    pub category_id: i32,
+    pub id: String,
+    pub category_id: String,
     pub category_name: String,
     pub title: String,
     pub description: Option<String>,
@@ -56,8 +57,8 @@ pub struct TaskDetailDto {
 impl From<TaskDetail> for TaskDetailDto {
     fn from(value: TaskDetail) -> Self {
         TaskDetailDto {
-            id: value.id,
-            category_id: value.category_id,
+            id: value.id.to_string(),
+            category_id: value.category_id.to_string(),
             category_name: value.category_name,
             title: value.title,
             description: value.description,
@@ -83,9 +84,9 @@ pub struct TaskCreateDto {
 }
 
 impl TaskCreateDto {
-    pub fn bind(self, category_id: i32) -> TaskCreateParams {
+    pub fn bind(self, category_id: String) -> TaskCreateParams {
         TaskCreateParams {
-            category_id,
+            category_id: Uuid::from_str(&category_id).unwrap(),
             title: self.title.clone(),
             description: self.description.clone(),
             expires_at: self.expires_at.clone().map(|s| string_to_datetime(&s)),
@@ -108,9 +109,9 @@ pub struct TaskUpdateDto {
 }
 
 impl TaskUpdateDto {
-    pub fn bind(self, task_id: i32) -> TaskUpdateParams {
+    pub fn bind(self, task_id: String) -> TaskUpdateParams {
         TaskUpdateParams {
-            id: task_id,
+            id: Uuid::from_str(&task_id).unwrap(),
             title: self.title.clone(),
             description: self.description.clone(),
             status: self
@@ -129,12 +130,12 @@ impl TaskUpdateDto {
 impl TaskUpdateParams {
     pub async fn validate(
         self,
-        user_id: i32,
+        user_id: String,
         connection: &mut PgConnection,
     ) -> Result<TaskUpdateParams, ModelError> {
         let owner_id = TaskDatabase::get_owner_id(self.id, connection).await?;
 
-        if owner_id != user_id {
+        if owner_id.to_string() != user_id {
             return Err(ModelError::PermissionDenied(
                 "cannot update other user's task".to_string(),
             ));
@@ -150,7 +151,8 @@ pub struct TaskScheduleDto {
 }
 
 impl TaskScheduleDto {
-    pub fn bind(self, task_id: i32) -> TaskUpdateParams {
+    pub fn bind(self, task_id: String) -> TaskUpdateParams {
+        let task_id = Uuid::from_str(&task_id).unwrap();
         TaskUpdateParams {
             id: task_id,
             title: None,
@@ -169,11 +171,13 @@ impl TaskScheduleDto {
 }
 
 pub struct TaskNextVersionDto {
-    pub next_version_id: i32,
+    pub next_version_id: String,
 }
 
 impl TaskNextVersionDto {
-    pub fn bind(self, task_id: i32) -> TaskUpdateParams {
+    pub fn bind(self, task_id: String) -> TaskUpdateParams {
+        let task_id = Uuid::from_str(&task_id).unwrap();
+        let next_version_id = Uuid::from_str(&self.next_version_id).unwrap();
         TaskUpdateParams {
             id: task_id,
             title: None,
@@ -183,16 +187,16 @@ impl TaskNextVersionDto {
             expires_at: None,
             cycle_time: None,
             pre_notify_time: None,
-            next_version_id: Some(self.next_version_id),
+            next_version_id: Some(next_version_id),
         }
     }
 }
 
 #[derive(Debug, Clone)]
-pub struct TaskDeleteDto(i32);
+pub struct TaskDeleteDto(String);
 
-impl From<i32> for TaskDeleteDto {
-    fn from(value: i32) -> Self {
+impl From<String> for TaskDeleteDto {
+    fn from(value: String) -> Self {
         Self(value)
     }
 }
@@ -200,17 +204,18 @@ impl From<i32> for TaskDeleteDto {
 impl TaskDeleteDto {
     pub async fn validate(
         self,
-        user_id: i32,
+        user_id: String,
         connection: &mut PgConnection,
-    ) -> Result<i32, ModelError> {
-        let owner_id = TaskDatabase::get_owner_id(self.0, connection).await?;
+    ) -> Result<Uuid, ModelError> {
+        let task_id = Uuid::from_str(&self.0).unwrap();
+        let owner_id = TaskDatabase::get_owner_id(task_id, connection).await?;
 
-        if owner_id != user_id {
+        if owner_id.to_string() != user_id {
             return Err(ModelError::PermissionDenied(
                 "cannot delete other user's task".to_string(),
             ));
         }
-        Ok(self.0)
+        Ok(task_id)
     }
 }
 
@@ -225,9 +230,9 @@ pub struct TaskSearchDto {
 }
 
 impl TaskSearchDto {
-    pub fn bind(self, category_id: i32) -> TaskSearchParams {
+    pub fn bind(self, category_id: String) -> TaskSearchParams {
         TaskSearchParams {
-            category_id,
+            category_id: Uuid::from_str(&category_id).unwrap(),
             title_pattern: self.title_pattern.clone(),
             status: self.status.clone().map(|s| {
                 s.into_iter()

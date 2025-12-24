@@ -1,4 +1,5 @@
 use sqlx::PgConnection;
+use uuid::Uuid;
 
 use crate::model::{
     error::ModelError,
@@ -7,7 +8,7 @@ use crate::model::{
 
 impl TaskDatabase {
     pub async fn get_by_id(
-        task_id: i32,
+        task_id: Uuid,
         connection: &mut PgConnection,
     ) -> Result<TaskDatabase, ModelError> {
         let task = sqlx::query_as!(
@@ -35,9 +36,9 @@ impl TaskDatabase {
     }
 
     pub async fn get_owner_id(
-        task_id: i32,
+        task_id: Uuid,
         connection: &mut PgConnection,
-    ) -> Result<i32, ModelError> {
+    ) -> Result<Uuid, ModelError> {
         let owner_id = sqlx::query_scalar!(
             r#"SELECT cat_usr_id
             FROM categories
@@ -53,7 +54,7 @@ impl TaskDatabase {
 
 impl TaskDetail {
     pub async fn get_by_id(
-        task_id: i32,
+        task_id: Uuid,
         connection: &mut PgConnection,
     ) -> Result<TaskDetail, ModelError> {
         let task = sqlx::query_as!(

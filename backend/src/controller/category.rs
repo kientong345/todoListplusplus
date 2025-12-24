@@ -1,9 +1,12 @@
+use std::str::FromStr;
+
 use axum::{
     extract::{Path, Query, State},
     Extension, Json,
 };
 use reqwest::StatusCode;
 use serde_json::{json, Value};
+use uuid::Uuid;
 
 use crate::{
     app::AppState,
@@ -26,7 +29,7 @@ pub async fn get_page(
     Query(query): Query<CategorySearchDto>,
     Extension(access_claims): Extension<AccessClaims>,
 ) -> Result<Json<Value>, ControllerError> {
-    let user_id = access_claims.sub.parse().unwrap_or(-1);
+    let user_id = access_claims.sub.parse().unwrap();
     let mut connection = state.db.start_transaction().await?;
 
     let page = CategoryMinimal::page(&query.bind(user_id), &mut *connection)
@@ -40,9 +43,10 @@ pub async fn get_page(
 
 pub async fn find_by_id(
     State(state): State<AppState>,
-    Path(category_id): Path<i32>,
+    Path(category_id): Path<String>,
     Extension(_access_claims): Extension<AccessClaims>,
 ) -> Result<Json<Value>, ControllerError> {
+    let category_id = Uuid::from_str(&category_id).unwrap();
     let mut connection = state.db.start_transaction().await?;
 
     let category: CategoryDetailDto = CategoryDetail::get_by_id(category_id, &mut *connection)
@@ -59,7 +63,7 @@ pub async fn create(
     Extension(access_claims): Extension<AccessClaims>,
     Json(payload): Json<CategoryCreateDto>,
 ) -> Result<StatusCode, ControllerError> {
-    let user_id = access_claims.sub.parse().unwrap_or(-1);
+    let user_id = access_claims.sub.parse().unwrap();
     let mut connection = state.db.start_transaction().await?;
     CategoryDatabase::create_from(&payload.bind(user_id), &mut *connection).await?;
     connection.commit().await?;
@@ -69,10 +73,10 @@ pub async fn create(
 
 pub async fn delete(
     State(state): State<AppState>,
-    Path(id): Path<i32>,
+    Path(id): Path<String>,
     Extension(access_claims): Extension<AccessClaims>,
 ) -> Result<StatusCode, ControllerError> {
-    let user_id = access_claims.sub.parse().unwrap_or(-1);
+    let user_id = access_claims.sub.parse().unwrap();
     let mut connection = state.db.start_transaction().await?;
 
     let validated_id = CategoryDeleteDto::from(id)
@@ -88,11 +92,11 @@ pub async fn delete(
 
 pub async fn update(
     State(state): State<AppState>,
-    Path(id): Path<i32>,
+    Path(id): Path<String>,
     Extension(access_claims): Extension<AccessClaims>,
     Json(payload): Json<CategoryUpdateDto>,
 ) -> Result<StatusCode, ControllerError> {
-    let user_id = access_claims.sub.parse().unwrap_or(-1);
+    let user_id = access_claims.sub.parse().unwrap();
     let mut connection = state.db.start_transaction().await?;
 
     let validated_params = payload.bind(id).validate(user_id, &mut *connection).await?;

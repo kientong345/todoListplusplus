@@ -1,5 +1,6 @@
 use chrono::{DateTime, Utc};
 use sqlx::prelude::FromRow;
+use uuid::Uuid;
 
 pub mod dto;
 pub mod get;
@@ -8,7 +9,7 @@ pub mod post;
 
 #[derive(Debug, Clone, FromRow)]
 pub struct UserDatabase {
-    pub id: i32,
+    pub id: Uuid,
     pub google_id: Option<String>,
     pub display_name: String,
     pub email: String,
@@ -21,7 +22,7 @@ pub struct UserDatabase {
 
 #[derive(Debug, Clone)]
 pub struct UserInfo {
-    pub id: i32,
+    pub id: Uuid,
     pub display_name: String,
     pub email: String,
     pub avatar_url: Option<String>,
@@ -42,7 +43,7 @@ pub struct UserCreateParams {
 
 #[derive(Debug, Clone)]
 pub struct UserUpdateParams {
-    pub id: i32,
+    pub id: Uuid,
     pub display_name: Option<String>,
     pub avatar_url: Option<String>,
     pub description: Option<String>,

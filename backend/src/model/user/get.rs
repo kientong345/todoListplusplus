@@ -1,4 +1,5 @@
 use sqlx::PgConnection;
+use uuid::Uuid;
 
 use crate::model::{
     error::ModelError,
@@ -7,7 +8,7 @@ use crate::model::{
 
 impl UserDatabase {
     pub async fn get_by_id(
-        user_id: i32,
+        user_id: Uuid,
         connection: &mut PgConnection,
     ) -> Result<UserDatabase, ModelError> {
         let user = sqlx::query_as!(
@@ -84,7 +85,7 @@ impl UserDatabase {
 
 impl UserInfo {
     pub async fn get_by_id(
-        user_id: i32,
+        user_id: Uuid,
         connection: &mut PgConnection,
     ) -> Result<UserInfo, ModelError> {
         let user = sqlx::query_as!(

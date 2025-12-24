@@ -2,20 +2,24 @@ use std::str::FromStr;
 
 use serde::{Deserialize, Serialize};
 use sqlx::PgConnection;
+use uuid::Uuid;
 
-use crate::{model::{
-    category::{
-        CategoryCreateParams, CategoryDatabase, CategoryDetail, CategoryMinimal,
-        CategorySearchParams, CategorySortBy, CategoryUpdateParams,
+use crate::{
+    model::{
+        category::{
+            CategoryCreateParams, CategoryDatabase, CategoryDetail, CategoryMinimal,
+            CategorySearchParams, CategorySortBy, CategoryUpdateParams,
+        },
+        error::ModelError,
     },
-    error::ModelError,
-}, utils::datetime_to_string};
+    utils::datetime_to_string,
+};
 
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CategoryDetailDto {
-    pub id: i32,
-    pub user_id: i32,
+    pub id: String,
+    pub user_id: String,
     pub name: String,
     pub image_url: Option<String>,
     pub description: Option<String>,
@@ -31,8 +35,8 @@ pub struct CategoryDetailDto {
 impl From<CategoryDetail> for CategoryDetailDto {
     fn from(value: CategoryDetail) -> Self {
         Self {
-            id: value.id,
-            user_id: value.user_id,
+            id: value.id.to_string(),
+            user_id: value.user_id.to_string(),
             name: value.name,
             image_url: value.image_url,
             description: value.description,
@@ -50,8 +54,8 @@ impl From<CategoryDetail> for CategoryDetailDto {
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CategoryMinimalDto {
-    pub id: i32,
-    pub user_id: i32,
+    pub id: String,
+    pub user_id: String,
     pub name: String,
     pub image_url: Option<String>,
     pub description: Option<String>,
@@ -61,8 +65,8 @@ pub struct CategoryMinimalDto {
 impl From<CategoryMinimal> for CategoryMinimalDto {
     fn from(value: CategoryMinimal) -> Self {
         Self {
-            id: value.id,
-            user_id: value.user_id,
+            id: value.id.to_string(),
+            user_id: value.user_id.to_string(),
             name: value.name,
             image_url: value.image_url,
             description: value.description,
@@ -80,7 +84,8 @@ pub struct CategoryCreateDto {
 }
 
 impl CategoryCreateDto {
-    pub fn bind(self, user_id: i32) -> CategoryCreateParams {
+    pub fn bind(self, user_id: String) -> CategoryCreateParams {
+        let user_id = Uuid::from_str(&user_id).unwrap();
         CategoryCreateParams {
             user_id,
             name: self.name.clone(),
@@ -99,7 +104,8 @@ pub struct CategoryUpdateDto {
 }
 
 impl CategoryUpdateDto {
-    pub fn bind(self, id: i32) -> CategoryUpdateParams {
+    pub fn bind(self, id: String) -> CategoryUpdateParams {
+        let id = Uuid::from_str(&id).unwrap();
         CategoryUpdateParams {
             id,
             name: self.name,
@@ -112,9 +118,10 @@ impl CategoryUpdateDto {
 impl CategoryUpdateParams {
     pub async fn validate(
         self,
-        user_id: i32,
+        user_id: String,
         connection: &mut PgConnection,
     ) -> Result<CategoryUpdateParams, ModelError> {
+        let user_id = Uuid::from_str(&user_id).unwrap();
         let category = CategoryDatabase::get_by_id(self.id, connection).await?;
 
         if category.user_id != user_id {
@@ -128,10 +135,10 @@ impl CategoryUpdateParams {
 }
 
 #[derive(Debug, Clone)]
-pub struct CategoryDeleteDto(i32);
+pub struct CategoryDeleteDto(String);
 
-impl From<i32> for CategoryDeleteDto {
-    fn from(value: i32) -> Self {
+impl From<String> for CategoryDeleteDto {
+    fn from(value: String) -> Self {
         Self(value)
     }
 }
@@ -139,17 +146,18 @@ impl From<i32> for CategoryDeleteDto {
 impl CategoryDeleteDto {
     pub async fn validate(
         self,
-        user_id: i32,
+        user_id: String,
         connection: &mut PgConnection,
-    ) -> Result<i32, ModelError> {
-        let category = CategoryDatabase::get_by_id(self.0, connection).await?;
+    ) -> Result<Uuid, ModelError> {
+        let uid = Uuid::from_str(&self.0).unwrap();
+        let category = CategoryDatabase::get_by_id(uid, connection).await?;
 
-        if category.user_id != user_id {
+        if category.user_id.to_string() != user_id {
             return Err(ModelError::PermissionDenied(
                 "cannot delete other user's category".to_string(),
             ));
         }
-        Ok(self.0)
+        Ok(uid)
     }
 }
 
@@ -163,7 +171,8 @@ pub struct CategorySearchDto {
 }
 
 impl CategorySearchDto {
-    pub fn bind(self, user_id: i32) -> CategorySearchParams {
+    pub fn bind(self, user_id: String) -> CategorySearchParams {
+        let user_id = Uuid::from_str(&user_id).unwrap();
         CategorySearchParams {
             user_id,
             name_pattern: self.name_pattern.clone(),

@@ -1,11 +1,17 @@
-use serde::{Deserialize, Serialize};
+use std::str::FromStr;
 
-use crate::{model::user::{UserInfo, UserUpdateParams}, utils::datetime_to_string};
+use serde::{Deserialize, Serialize};
+use uuid::Uuid;
+
+use crate::{
+    model::user::{UserInfo, UserUpdateParams},
+    utils::datetime_to_string,
+};
 
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct UserInfoDto {
-    pub id: i32,
+    pub id: String,
     pub display_name: String,
     pub email: String,
     pub avatar_url: Option<String>,
@@ -17,7 +23,7 @@ pub struct UserInfoDto {
 impl From<UserInfo> for UserInfoDto {
     fn from(value: UserInfo) -> Self {
         Self {
-            id: value.id,
+            id: value.id.to_string(),
             display_name: value.display_name,
             email: value.email,
             avatar_url: value.avatar_url,
@@ -37,9 +43,9 @@ pub struct UserUpdateDto {
 }
 
 impl UserUpdateDto {
-    pub fn bind(self, id: i32) -> UserUpdateParams {
+    pub fn bind(self, id: String) -> UserUpdateParams {
         UserUpdateParams {
-            id,
+            id: Uuid::from_str(&id).unwrap(),
             display_name: self.display_name,
             avatar_url: self.avatar_url,
             description: self.description,
