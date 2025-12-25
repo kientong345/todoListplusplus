@@ -19,7 +19,7 @@ impl OAuthConfig {
                 .expect("GOOGLE_CLIENT_SECRET is not set"),
             auth_url: "https://accounts.google.com/o/oauth2/v2/auth".to_string(),
             token_url: "https://oauth2.googleapis.com/token".to_string(),
-            redirect_url: "http://localhost:3000/oauth/login".to_string(),
+            redirect_url: "postmessage".to_string(),
             user_info_url: "https://www.googleapis.com/oauth2/v1/userinfo".to_string(),
         }
     }

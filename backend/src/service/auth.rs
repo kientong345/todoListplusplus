@@ -102,7 +102,7 @@ impl AuthService {
                 display_name: oauth.display_name,
                 email: oauth.email,
                 password_hash: None,
-                avatar_url: None,
+                avatar_url: Some(oauth.avatar_url),
                 description: None,
                 // role: None, // default is "user"
             };

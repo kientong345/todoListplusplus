@@ -10,8 +10,8 @@ pub enum ServiceError {
     #[error("database error: {0}")]
     Database(#[from] sqlx::Error),
 
-    #[error("token exchange error: {0}")]
-    TokenExchange(#[from] reqwest::Error),
+    #[error("reqwest error: {0}")]
+    Reqwest(#[from] reqwest::Error),
 
     #[error("bcrypt error: {0}")]
     Bcrypt(#[from] bcrypt::BcryptError),
@@ -40,7 +40,7 @@ impl ServiceError {
         match self {
             ServiceError::Model(_) => 50013,
             ServiceError::Database(_) => 50012,
-            ServiceError::TokenExchange(_) => 50014,
+            ServiceError::Reqwest(_) => 50014,
             ServiceError::Bcrypt(_) => 50003,
             ServiceError::Jwt(_) => 50002,
             ServiceError::EmailTaken { .. } => 40001,

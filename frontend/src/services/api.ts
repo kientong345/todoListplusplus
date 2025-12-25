@@ -18,7 +18,11 @@ export const auth = {
   register: async (displayName: string, email: string, password: string) => {
     return api.post('/auth/register', { displayName, email, password });
   },
-  // Google login logic would go here
+  googleLogin: async (code: string): Promise<{ access_token: string }> => {
+    console.log("code: ", code);
+    const response = await api.post('/auth/google-login?code=' + code);
+    return response.data;
+  }
 };
 
 // --- User ---

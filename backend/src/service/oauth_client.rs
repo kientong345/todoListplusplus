@@ -44,7 +44,12 @@ impl OAuthClient {
             .send()
             .await?;
 
-        let oauth_response = response.json::<OAuthResponse>().await?;
+        let text = response.text().await?;
+
+        let oauth_response = serde_json::from_str::<OAuthResponse>(&text).map_err(|e| {
+            ServiceError::BadSubmission(format!("Failed to parse Google response: {}", e))
+        })?;
+
         Ok(oauth_response)
     }
 
@@ -60,7 +65,11 @@ impl OAuthClient {
 
         let response = self.client.get(url).bearer_auth(id_token).send().await?;
 
-        let user_info = response.json::<GoogleUserResult>().await?;
+        let text = response.text().await?;
+
+        let user_info = serde_json::from_str::<GoogleUserResult>(&text).map_err(|e| {
+            ServiceError::BadSubmission(format!("Failed to parse Google response: {}", e))
+        })?;
         Ok(user_info)
     }
 }

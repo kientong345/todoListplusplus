@@ -1,22 +1,24 @@
 use serde::Deserialize;
 
 #[derive(Debug, Clone, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct OAuthSchema {
     pub google_id: String,
     pub display_name: String,
     pub email: String,
+    pub avatar_url: String,
 }
 
-#[derive(Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[derive(Debug, Clone, Deserialize)]
 pub struct OAuthResponse {
     pub access_token: String,
+    pub expires_in: i32,
+    pub refresh_token: String,
+    pub scope: String,
+    pub token_type: String,
     pub id_token: String,
 }
 
-#[derive(Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[derive(Debug, Clone, Deserialize)]
 pub struct GoogleUserResult {
     pub id: String,
     pub email: String,
@@ -25,7 +27,6 @@ pub struct GoogleUserResult {
     pub given_name: String,
     pub family_name: String,
     pub picture: String,
-    pub locale: String,
 }
 
 impl Into<OAuthSchema> for GoogleUserResult {
@@ -34,13 +35,12 @@ impl Into<OAuthSchema> for GoogleUserResult {
             google_id: self.id,
             display_name: self.name,
             email: self.email,
+            avatar_url: self.picture,
         }
     }
 }
 
-#[derive(Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[derive(Debug, Clone, Deserialize)]
 pub struct AuthorizationCode {
     pub code: String,
-    pub state: String,
 }

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useGoogleLogin } from "@react-oauth/google";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { auth as authService } from "@/services/api";
@@ -32,10 +33,24 @@ export default function LoginPage() {
   };
 
 
-  const handleGoogleLogin = () => {
-    // TODO: Implement Google OAuth logic
-    console.log("Login with Google");
-  };
+  const handleGoogleLogin = useGoogleLogin({
+    onSuccess: async (codeResponse: any) => {
+      setIsLoading(true);
+      try {
+        const { access_token } = await authService.googleLogin(codeResponse.code);
+        login(access_token);
+        navigate("/");
+      } catch (error) {
+        console.error("Google Login failed", error);
+        // Optional: Show error message
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    onError: (error) => console.error('Login Failed:', error),
+    flow: 'auth-code',
+    redirect_uri: window.location.origin, // e.g. http://localhost:5173
+  });
 
   return (
     <div className="flex min-h-[80vh] items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
