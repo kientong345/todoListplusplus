@@ -13,15 +13,8 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/contexts/AuthContext";
 
-// Mock User Data (Replace with actual auth context later)
-const MOCK_USER = {
-  displayName: "John Doe",
-  imageUrl: "https://github.com/shadcn.png",
-  email: "john@example.com"
-};
-
 export function Navbar() {
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, logout, user } = useAuth();
   
   const handleLogout = () => {
     logout();
@@ -43,25 +36,25 @@ export function Navbar() {
         </div>
 
         <div className="flex items-center space-x-4">
-          {isAuthenticated && (
+          {isAuthenticated && user && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-10 w-full justify-start gap-2 rounded-full px-2 md:w-auto hover:bg-muted">
                   <Avatar className="h-8 w-8">
-                    <AvatarImage src={MOCK_USER.imageUrl} alt={MOCK_USER.displayName} />
-                    <AvatarFallback>{MOCK_USER.displayName.charAt(0)}</AvatarFallback>
+                    <AvatarImage src={user.avatarUrl || ""} alt={user.displayName} />
+                    <AvatarFallback>{user.displayName.charAt(0)}</AvatarFallback>
                   </Avatar>
                   <span className="hidden md:inline-flex font-medium text-sm">
-                    {MOCK_USER.displayName}
+                    {user.displayName}
                   </span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-56" align="end" forceMount>
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">{MOCK_USER.displayName}</p>
+                    <p className="text-sm font-medium leading-none">{user.displayName}</p>
                     <p className="text-xs leading-none text-muted-foreground">
-                      {MOCK_USER.email}
+                      {user.email}
                     </p>
                   </div>
                 </DropdownMenuLabel>

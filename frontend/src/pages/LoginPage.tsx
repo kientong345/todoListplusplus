@@ -22,7 +22,7 @@ export default function LoginPage() {
     setIsLoading(true);
     try {
       const { access_token } = await authService.login(email, password);
-      login(access_token);
+      await login(access_token);
       navigate("/");
     } catch (error) {
       console.error("Login failed", error);
@@ -38,7 +38,7 @@ export default function LoginPage() {
       setIsLoading(true);
       try {
         const { access_token } = await authService.googleLogin(codeResponse.code);
-        login(access_token);
+        await login(access_token);
         navigate("/");
       } catch (error) {
         console.error("Google Login failed", error);
