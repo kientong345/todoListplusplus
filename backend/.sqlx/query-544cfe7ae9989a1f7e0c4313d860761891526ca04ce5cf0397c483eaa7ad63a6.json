@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE categories\n            SET cat_image_url = $2\n            WHERE cat_id = $1",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "544cfe7ae9989a1f7e0c4313d860761891526ca04ce5cf0397c483eaa7ad63a6"
+}

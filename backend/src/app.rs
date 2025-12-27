@@ -6,7 +6,7 @@ use crate::{
     config::Configuration,
     database::persistent::PrimaryDatabase,
     routes,
-    service::{auth::AuthService, email_client::EmailClient, task_scheduler::SchedulerService},
+    service::{auth::AuthService, message_client::EmailClient, task_scheduler::SchedulerService},
 };
 
 #[derive(Clone)]

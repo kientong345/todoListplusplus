@@ -22,6 +22,8 @@ use crate::{
         },
         user_auth::AccessClaims,
     },
+    service::task_scheduler::{UpdateEvent, UpdateEventType},
+    utils::pg_interval_to_time,
 };
 
 pub async fn get_page(
@@ -66,8 +68,24 @@ pub async fn create(
     Json(payload): Json<TaskCreateDto>,
 ) -> Result<StatusCode, ControllerError> {
     let mut connection = state.db.start_transaction().await?;
-    TaskDatabase::create_from(&payload.bind(category_id), &mut *connection).await?;
+    let new_task = TaskDatabase::create_from(&payload.bind(category_id), &mut *connection).await?;
     connection.commit().await?;
+
+    if let Some(expires_at) = new_task.expires_at {
+        let schedule_update_event = UpdateEvent {
+            task_id: new_task.id,
+            r#type: UpdateEventType::NewScheduledTask {
+                expires_at,
+                cycle_time: new_task.cycle_time.map(|x| pg_interval_to_time(x)),
+                notify_time: new_task.notify_time,
+            },
+        };
+        state
+            .scheduler_service
+            .trigger_schedule_update_event(schedule_update_event)
+            .await
+            .expect("oof");
+    }
 
     Ok(StatusCode::CREATED)
 }

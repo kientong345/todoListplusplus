@@ -30,11 +30,8 @@ impl TaskDatabase {
         if let Some(cycle_time) = &params.cycle_time {
             Self::update_cycle_time(params.id, cycle_time.clone(), connection).await?;
         }
-        if let Some(pre_notify_time) = &params.pre_notify_time {
-            Self::update_pre_notify_time(params.id, pre_notify_time.clone(), connection).await?;
-        }
-        if let Some(next_version_id) = &params.next_version_id {
-            Self::update_next_version_id(params.id, next_version_id.clone(), connection).await?;
+        if let Some(notify_time) = &params.notify_time {
+            Self::update_notify_time(params.id, notify_time.clone(), connection).await?;
         }
         let task = Self::get_by_id(params.id, connection).await?;
         Ok(task)
@@ -46,9 +43,9 @@ impl TaskDatabase {
         connection: &mut PgConnection,
     ) -> Result<(), ModelError> {
         sqlx::query!(
-            r#"UPDATE tasks
-            SET tsk_title = $2
-            WHERE tsk_id = $1"#,
+            r#"UPDATE task_chains
+            SET chain_title = $2
+            WHERE chain_id = $1"#,
             task_id,
             title,
         )
@@ -63,9 +60,9 @@ impl TaskDatabase {
         connection: &mut PgConnection,
     ) -> Result<(), ModelError> {
         sqlx::query!(
-            r#"UPDATE tasks
-            SET tsk_description = $2
-            WHERE tsk_id = $1"#,
+            r#"UPDATE task_chains
+            SET chain_description = $2
+            WHERE chain_id = $1"#,
             task_id,
             description,
         )
@@ -80,9 +77,9 @@ impl TaskDatabase {
         connection: &mut PgConnection,
     ) -> Result<(), ModelError> {
         sqlx::query!(
-            r#"UPDATE tasks
-            SET tsk_status = $2
-            WHERE tsk_id = $1"#,
+            r#"UPDATE task_chain_links
+            SET link_status = $2
+            WHERE link_chain_id = $1 AND link_is_latest = TRUE"#,
             task_id,
             status as TaskStatus,
         )
@@ -97,9 +94,9 @@ impl TaskDatabase {
         connection: &mut PgConnection,
     ) -> Result<(), ModelError> {
         sqlx::query!(
-            r#"UPDATE tasks
-            SET tsk_usr_comment = $2
-            WHERE tsk_id = $1"#,
+            r#"UPDATE task_chains
+            SET chain_usr_comment = $2
+            WHERE chain_id = $1"#,
             task_id,
             user_comment,
         )
@@ -114,9 +111,9 @@ impl TaskDatabase {
         connection: &mut PgConnection,
     ) -> Result<(), ModelError> {
         sqlx::query!(
-            r#"UPDATE tasks
-            SET tsk_expires_at = $2
-            WHERE tsk_id = $1"#,
+            r#"UPDATE task_chain_links
+            SET link_expires_at = $2
+            WHERE link_chain_id = $1 AND link_is_latest = TRUE"#,
             task_id,
             expires_at,
         )
@@ -131,9 +128,9 @@ impl TaskDatabase {
         connection: &mut PgConnection,
     ) -> Result<(), ModelError> {
         sqlx::query!(
-            r#"UPDATE tasks
-            SET tsk_cycle_time = $2
-            WHERE tsk_id = $1"#,
+            r#"UPDATE task_chains
+            SET chain_cycle_time = $2
+            WHERE chain_id = $1"#,
             task_id,
             cycle_time,
         )
@@ -142,34 +139,17 @@ impl TaskDatabase {
         Ok(())
     }
 
-    async fn update_pre_notify_time(
+    async fn update_notify_time(
         task_id: Uuid,
-        pre_notify_time: PgInterval,
+        notify_time: DateTime<Utc>,
         connection: &mut PgConnection,
     ) -> Result<(), ModelError> {
         sqlx::query!(
-            r#"UPDATE tasks
-            SET tsk_pre_notify_time = $2
-            WHERE tsk_id = $1"#,
+            r#"UPDATE task_chain_links
+            SET link_notify_time = $2
+            WHERE link_chain_id = $1 AND link_is_latest = TRUE"#,
             task_id,
-            pre_notify_time,
-        )
-        .execute(connection)
-        .await?;
-        Ok(())
-    }
-
-    async fn update_next_version_id(
-        task_id: Uuid,
-        next_version_id: Uuid,
-        connection: &mut PgConnection,
-    ) -> Result<(), ModelError> {
-        sqlx::query!(
-            r#"UPDATE tasks
-            SET tsk_next_version_id = $2
-            WHERE tsk_id = $1"#,
-            task_id,
-            next_version_id,
+            notify_time,
         )
         .execute(connection)
         .await?;

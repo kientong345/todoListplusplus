@@ -6,6 +6,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { auth as authService } from "@/services/api";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { useGoogleLogin } from "@react-oauth/google";
 
 export default function RegisterPage() {
   const navigate = useNavigate();
@@ -41,10 +42,24 @@ export default function RegisterPage() {
     }
   };
 
-  const handleGoogleLogin = () => {
-    // TODO: Implement Google OAuth logic
-    console.log("Login with Google");
-  };
+  const handleGoogleLogin = useGoogleLogin({
+    onSuccess: async (codeResponse: any) => {
+      setIsLoading(true);
+      try {
+        const { access_token } = await authService.googleLogin(codeResponse.code);
+        await login(access_token);
+        navigate("/");
+      } catch (error) {
+        console.error("Google Login failed", error);
+        // Optional: Show error message
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    onError: (error) => console.error('Login Failed:', error),
+    flow: 'auth-code',
+    redirect_uri: window.location.origin, // e.g. http://localhost:5173
+  });
 
   return (
     <div className="flex min-h-[80vh] items-center justify-center py-12 px-4 sm:px-6 lg:px-8">

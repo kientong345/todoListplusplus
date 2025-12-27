@@ -1,0 +1,60 @@
+    Checking todo-list v0.1.0 (/home/kt345/Documents/my_workspace/todo-list/backend)
+warning: unused import: `Mutex`
+ --> src/service/task_scheduler.rs:5:5
+  |
+5 |     Mutex, RwLock, mpsc::{self, Receiver, Sender}
+  |     ^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+error[E0716]: temporary value dropped while borrowed
+   --> src/service/task_scheduler.rs:260:39
+    |
+247 | /             tokio::select! {
+248 | |                 _ = sleep_until_dt(next_wakeup) => {
+249 | |                     next_wakeup = loop {
+250 | |                         if let Some(next_event) = self.clone().get_next_event().await {
+...   |
+260 | |                 Some(update_params) = self.clone().rx.recv() => {
+    | |                                       ^^^^^^^^^^^^ creates a temporary value which is freed while still in use
+...   |
+272 | |             }
+    | |             -
+    | |             |
+    | |_____________temporary value is freed at the end of this statement
+    |               borrow later used here
+    |
+    = note: consider using a `let` binding to create a longer lived value
+
+error[E0596]: cannot borrow data in an `Arc` as mutable
+   --> src/service/task_scheduler.rs:260:39
+    |
+260 |                 Some(update_params) = self.clone().rx.recv() => {
+    |                                       ^^^^^^^^^^^^^^^ cannot borrow as mutable
+    |
+    = help: trait `DerefMut` is required to modify through a dereference, but it is not implemented for `Arc<SchedulerService>`
+
+warning: unused variable: `new_cycle_time`
+   --> src/service/task_scheduler.rs:200:46
+    |
+200 |             UpdateEventType::UpdateCycleTime(new_cycle_time) => {
+    |                                              ^^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_new_cycle_time`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `new_expire_time`
+   --> src/service/task_scheduler.rs:204:47
+    |
+204 |             UpdateEventType::UpdateExpiration(new_expire_time) => {
+    |                                               ^^^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_new_expire_time`
+
+warning: unused variable: `new_notify_time`
+   --> src/service/task_scheduler.rs:208:47
+    |
+208 |             UpdateEventType::UpdateNotifyTime(new_notify_time) => {
+    |                                               ^^^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_new_notify_time`
+
+Some errors have detailed explanations: E0596, E0716.
+For more information about an error, try `rustc --explain E0596`.
+warning: `todo-list` (lib) generated 4 warnings
+error: could not compile `todo-list` (lib) due to 2 previous errors; 4 warnings emitted

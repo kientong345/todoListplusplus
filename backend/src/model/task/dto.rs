@@ -51,7 +51,7 @@ pub struct TaskDetailDto {
     pub updated_at: Option<String>,
     pub expires_at: Option<String>,
     pub cycle_time: Option<String>,
-    pub pre_notify_time: Option<String>,
+    pub notify_time: Option<String>,
 }
 
 impl From<TaskDetail> for TaskDetailDto {
@@ -68,7 +68,7 @@ impl From<TaskDetail> for TaskDetailDto {
             updated_at: value.updated_at.map(|dt| datetime_to_string(dt)),
             expires_at: value.expires_at.map(|dt| datetime_to_string(dt)),
             cycle_time: value.cycle_time.map(|d| pg_interval_to_string(d)),
-            pre_notify_time: value.pre_notify_time.map(|d| pg_interval_to_string(d)),
+            notify_time: value.notify_time.map(|d| datetime_to_string(d)),
         }
     }
 }
@@ -80,7 +80,7 @@ pub struct TaskCreateDto {
     pub description: Option<String>,
     pub expires_at: Option<String>,
     pub cycle_time: Option<String>,
-    pub pre_notify_time: Option<String>,
+    pub notify_time: Option<String>,
 }
 
 impl TaskCreateDto {
@@ -91,10 +91,7 @@ impl TaskCreateDto {
             description: self.description.clone(),
             expires_at: self.expires_at.clone().map(|s| string_to_datetime(&s)),
             cycle_time: self.cycle_time.clone().map(|s| string_to_pg_interval(&s)),
-            pre_notify_time: self
-                .pre_notify_time
-                .clone()
-                .map(|s| string_to_pg_interval(&s)),
+            notify_time: self.notify_time.clone().map(|s| string_to_datetime(&s)),
         }
     }
 }
@@ -121,8 +118,7 @@ impl TaskUpdateDto {
             user_comment: self.user_comment.clone(),
             expires_at: None,
             cycle_time: None,
-            pre_notify_time: None,
-            next_version_id: None,
+            notify_time: None,
         }
     }
 }
@@ -144,10 +140,12 @@ impl TaskUpdateParams {
     }
 }
 
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct TaskScheduleDto {
     pub expires_at: Option<String>,
     pub cycle_time: Option<String>,
-    pub pre_notify_time: Option<String>,
+    pub notify_time: Option<String>,
 }
 
 impl TaskScheduleDto {
@@ -161,33 +159,7 @@ impl TaskScheduleDto {
             user_comment: None,
             expires_at: self.expires_at.clone().map(|s| string_to_datetime(&s)),
             cycle_time: self.cycle_time.clone().map(|s| string_to_pg_interval(&s)),
-            pre_notify_time: self
-                .pre_notify_time
-                .clone()
-                .map(|s| string_to_pg_interval(&s)),
-            next_version_id: None,
-        }
-    }
-}
-
-pub struct TaskNextVersionDto {
-    pub next_version_id: String,
-}
-
-impl TaskNextVersionDto {
-    pub fn bind(self, task_id: String) -> TaskUpdateParams {
-        let task_id = Uuid::from_str(&task_id).unwrap();
-        let next_version_id = Uuid::from_str(&self.next_version_id).unwrap();
-        TaskUpdateParams {
-            id: task_id,
-            title: None,
-            description: None,
-            status: None,
-            user_comment: None,
-            expires_at: None,
-            cycle_time: None,
-            pre_notify_time: None,
-            next_version_id: Some(next_version_id),
+            notify_time: self.notify_time.clone().map(|s| string_to_datetime(&s)),
         }
     }
 }

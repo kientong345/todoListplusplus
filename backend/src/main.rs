@@ -4,8 +4,7 @@ use todo_list::{
     app::{self, AppState},
     config::Configuration,
     database::persistent::PrimaryDatabase,
-    service::{auth::AuthService, email_client::EmailClient, task_scheduler::SchedulerService},
-    utils::get_runtime,
+    service::{auth::AuthService, message_client::EmailClient, task_scheduler::SchedulerService},
 };
 use tokio::net::TcpListener;
 use tower_http::cors::CorsLayer;
@@ -29,17 +28,10 @@ async fn main() {
 
     let auth_service = AuthService::new(config.auth_config.clone());
 
-    let scheduler_runtime = get_runtime(
-        config.app_config.scheduler_threads as usize,
-        "todoListplusplus-tasks-scheduler",
-    )
-    .expect("cannot build todoListplusplus-tasks-scheduler runtime");
-
     let email_client = Arc::new(EmailClient::new());
 
     let scheduler_service = Arc::new(
-        SchedulerService::init(db.clone(), scheduler_runtime, email_client.clone())
-            .with_scheduled_tasks()
+        SchedulerService::init(db.clone(), email_client.clone())
             .await
             .expect("cannot fetch scheduled tasks from database"),
     );

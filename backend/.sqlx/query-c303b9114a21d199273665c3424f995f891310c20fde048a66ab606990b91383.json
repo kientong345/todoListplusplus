@@ -1,21 +1,21 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT\n            tsk_id AS id,\n            tsk_cat_id AS \"category_id!\",\n            tsk_title AS title,\n            tsk_description AS description,\n            tsk_status AS \"status: _\",\n            tsk_usr_comment AS user_comment,\n            tsk_created_at AS created_at,\n            tsk_updated_at AS updated_at,\n            tsk_expires_at AS expires_at,\n            tsk_reschedule_at AS reschedule_at\n            FROM tasks WHERE tsk_id = $1",
+  "query": "SELECT\n                tsk_id AS \"id!\",\n                tsk_cat_id AS \"category_id!\",\n                tsk_title AS \"title!\",\n                tsk_description AS description,\n                tsk_status AS \"status!: _\",\n                tsk_usr_comment AS user_comment,\n                tsk_created_at AS created_at,\n                tsk_updated_at AS updated_at,\n                tsk_expires_at AS expires_at,\n                tsk_cycle_time AS cycle_time,\n                tsk_notify_time AS notify_time\n            FROM tasks\n            WHERE tsk_expires_at IS NOT NULL OR tsk_cycle_time IS NOT NULL",
   "describe": {
     "columns": [
       {
         "ordinal": 0,
-        "name": "id",
-        "type_info": "Int4"
+        "name": "id!",
+        "type_info": "Uuid"
       },
       {
         "ordinal": 1,
         "name": "category_id!",
-        "type_info": "Int4"
+        "type_info": "Uuid"
       },
       {
         "ordinal": 2,
-        "name": "title",
+        "name": "title!",
         "type_info": "Text"
       },
       {
@@ -25,7 +25,7 @@
       },
       {
         "ordinal": 4,
-        "name": "status: _",
+        "name": "status!: _",
         "type_info": {
           "Custom": {
             "name": "task_status",
@@ -61,21 +61,25 @@
       },
       {
         "ordinal": 9,
-        "name": "reschedule_at",
+        "name": "cycle_time",
+        "type_info": "Interval"
+      },
+      {
+        "ordinal": 10,
+        "name": "notify_time",
         "type_info": "Timestamptz"
       }
     ],
     "parameters": {
-      "Left": [
-        "Int4"
-      ]
+      "Left": []
     },
     "nullable": [
-      false,
-      false,
-      false,
       true,
-      false,
+      true,
+      true,
+      true,
+      true,
+      true,
       true,
       true,
       true,
@@ -83,5 +87,5 @@
       true
     ]
   },
-  "hash": "f894d81883f995ca7edcdf2cdc17c82eb47f16c89b98113ee68db3beaf2a0789"
+  "hash": "c303b9114a21d199273665c3424f995f891310c20fde048a66ab606990b91383"
 }

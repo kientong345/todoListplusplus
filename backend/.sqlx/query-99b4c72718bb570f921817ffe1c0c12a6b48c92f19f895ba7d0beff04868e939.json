@@ -1,17 +1,17 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT\n            tsk_id AS id,\n            tsk_cat_id AS \"category_id!\",\n            cat_name AS \"category_name!\",\n            tsk_title AS title,\n            tsk_description AS description,\n            tsk_status AS \"status: _\",\n            tsk_usr_comment AS user_comment,\n            tsk_created_at AS created_at,\n            tsk_updated_at AS updated_at,\n            tsk_expires_at AS expires_at,\n            tsk_reschedule_at AS reschedule_at\n            FROM tasks\n            JOIN categories ON tsk_cat_id = cat_id\n            WHERE tsk_id = $1",
+  "query": "SELECT\n                tsk_id AS \"id!\",\n                tsk_cat_id AS \"category_id!\",\n                cat_name AS \"category_name!\",\n                tsk_title AS \"title!\",\n                tsk_description AS description,\n                tsk_status AS \"status!: _\",\n                tsk_usr_comment AS user_comment,\n                tsk_created_at AS created_at,\n                tsk_updated_at AS updated_at,\n                tsk_expires_at AS expires_at,\n                tsk_cycle_time AS cycle_time,\n                tsk_notify_time AS notify_time\n            FROM tasks\n            JOIN categories ON tsk_cat_id = cat_id\n            WHERE tsk_id = $1",
   "describe": {
     "columns": [
       {
         "ordinal": 0,
-        "name": "id",
-        "type_info": "Int4"
+        "name": "id!",
+        "type_info": "Uuid"
       },
       {
         "ordinal": 1,
         "name": "category_id!",
-        "type_info": "Int4"
+        "type_info": "Uuid"
       },
       {
         "ordinal": 2,
@@ -20,7 +20,7 @@
       },
       {
         "ordinal": 3,
-        "name": "title",
+        "name": "title!",
         "type_info": "Text"
       },
       {
@@ -30,7 +30,7 @@
       },
       {
         "ordinal": 5,
-        "name": "status: _",
+        "name": "status!: _",
         "type_info": {
           "Custom": {
             "name": "task_status",
@@ -66,22 +66,28 @@
       },
       {
         "ordinal": 10,
-        "name": "reschedule_at",
+        "name": "cycle_time",
+        "type_info": "Interval"
+      },
+      {
+        "ordinal": 11,
+        "name": "notify_time",
         "type_info": "Timestamptz"
       }
     ],
     "parameters": {
       "Left": [
-        "Int4"
+        "Uuid"
       ]
     },
     "nullable": [
-      false,
-      false,
-      false,
-      false,
+      true,
       true,
       false,
+      true,
+      true,
+      true,
+      true,
       true,
       true,
       true,
@@ -89,5 +95,5 @@
       true
     ]
   },
-  "hash": "c7d371990356e45941b4adc0899fdac46981fe1f04df57f5d11dcf66ac24c5d9"
+  "hash": "99b4c72718bb570f921817ffe1c0c12a6b48c92f19f895ba7d0beff04868e939"
 }

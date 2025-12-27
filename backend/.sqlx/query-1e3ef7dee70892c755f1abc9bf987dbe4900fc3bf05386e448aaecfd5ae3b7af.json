@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "DELETE FROM categories WHERE cat_id = $1",
+  "query": "DELETE FROM task_chains WHERE chain_id = $1",
   "describe": {
     "columns": [],
     "parameters": {
@@ -10,5 +10,5 @@
     },
     "nullable": []
   },
-  "hash": "20f931c9fff685f29832ac6a250210db354ffc8461fa85074c9230014902ab45"
+  "hash": "1e3ef7dee70892c755f1abc9bf987dbe4900fc3bf05386e448aaecfd5ae3b7af"
 }

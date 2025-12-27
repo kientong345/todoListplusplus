@@ -5,7 +5,6 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Deserialize, Serialize, Clone, Default)]
 pub struct AppConfig {
     pub port: u16,
-    pub scheduler_threads: u16,
 }
 
 impl AppConfig {

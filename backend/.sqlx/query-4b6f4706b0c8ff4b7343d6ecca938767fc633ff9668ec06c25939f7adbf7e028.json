@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO task_chain_links (\n                link_chain_id, link_expires_at, link_notify_time, link_prev_id\n            )\n            VALUES ($1, $2, $3, $4)",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Timestamptz",
+        "Timestamptz",
+        "Int4"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "4b6f4706b0c8ff4b7343d6ecca938767fc633ff9668ec06c25939f7adbf7e028"
+}

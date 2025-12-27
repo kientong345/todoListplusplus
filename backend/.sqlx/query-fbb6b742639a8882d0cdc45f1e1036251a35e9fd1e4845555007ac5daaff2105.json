@@ -1,0 +1,26 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE task_chain_links\n            SET link_status = $2\n            WHERE link_chain_id = $1 AND link_is_latest = TRUE",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        {
+          "Custom": {
+            "name": "task_status",
+            "kind": {
+              "Enum": [
+                "open",
+                "cancel",
+                "done"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "fbb6b742639a8882d0cdc45f1e1036251a35e9fd1e4845555007ac5daaff2105"
+}

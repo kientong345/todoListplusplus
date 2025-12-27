@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE task_chain_links\n            SET link_notify_time = $2\n            WHERE link_chain_id = $1 AND link_is_latest = TRUE",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "fa838e1e203088c695ae6376b445295e297179de090ec79b44389232e22dcb35"
+}

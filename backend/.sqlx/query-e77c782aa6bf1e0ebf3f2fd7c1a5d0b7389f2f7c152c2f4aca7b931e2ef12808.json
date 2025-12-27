@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE users\n            SET usr_avatar_url = $2\n            WHERE usr_id = $1",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "e77c782aa6bf1e0ebf3f2fd7c1a5d0b7389f2f7c152c2f4aca7b931e2ef12808"
+}

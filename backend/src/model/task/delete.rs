@@ -8,7 +8,7 @@ impl TaskDatabase {
         task_id: Uuid,
         connection: &mut PgConnection,
     ) -> Result<(), ModelError> {
-        sqlx::query!(r#"DELETE FROM tasks WHERE tsk_id = $1"#, task_id)
+        sqlx::query!(r#"DELETE FROM task_chains WHERE chain_id = $1"#, task_id)
             .execute(connection)
             .await?;
         Ok(())

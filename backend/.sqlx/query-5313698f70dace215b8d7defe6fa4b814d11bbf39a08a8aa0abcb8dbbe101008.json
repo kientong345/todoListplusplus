@@ -1,0 +1,25 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO task_chains (\n                chain_cat_id, chain_title, chain_description, chain_cycle_time\n            )\n            VALUES ($1, $2, $3, $4)\n            RETURNING chain_id",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "chain_id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Text",
+        "Interval"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "5313698f70dace215b8d7defe6fa4b814d11bbf39a08a8aa0abcb8dbbe101008"
+}

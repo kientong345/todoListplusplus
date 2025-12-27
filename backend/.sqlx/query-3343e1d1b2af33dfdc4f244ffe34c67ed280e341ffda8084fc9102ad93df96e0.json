@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE task_chains\n            SET chain_usr_comment = $2\n            WHERE chain_id = $1",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "3343e1d1b2af33dfdc4f244ffe34c67ed280e341ffda8084fc9102ad93df96e0"
+}

@@ -32,20 +32,46 @@ CREATE TABLE IF NOT EXISTS categories (
     CONSTRAINT unique_cat_name_per_user UNIQUE (cat_usr_id, cat_name)
 );
 
--- TASKS
-CREATE TABLE IF NOT EXISTS tasks (
-    tsk_id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    tsk_cat_id          UUID NOT NULL REFERENCES categories(cat_id) ON DELETE CASCADE,
-    tsk_title           TEXT NOT NULL,
-    tsk_description     TEXT,
-    tsk_status          task_status NOT NULL DEFAULT 'open',
-    tsk_usr_comment     TEXT DEFAULT NULL,
-    tsk_created_at      TIMESTAMPTZ DEFAULT NOW(),
-    tsk_updated_at      TIMESTAMPTZ DEFAULT NOW(),
-    tsk_expires_at      TIMESTAMPTZ DEFAULT NULL,
-    tsk_cycle_time      INTERVAL DEFAULT NULL, -- reschedule_time = (tsk_expires_at + tsk_cycle_time)
-    tsk_pre_notify_time INTERVAL DEFAULT NULL, -- time = (tsk_expires_at - tsk_pre_notify_time)
-    tsk_next_version_id UUID DEFAULT NULL REFERENCES tasks(tsk_id) ON DELETE SET NULL, -- use to find the latest version of cycle task
+-- TASK_CHAINS
+CREATE TABLE IF NOT EXISTS task_chains (
+    chain_id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    chain_cat_id            UUID NOT NULL REFERENCES categories(cat_id) ON DELETE CASCADE,
+    chain_title             TEXT NOT NULL,
+    chain_description       TEXT,
+    chain_usr_comment       TEXT DEFAULT NULL,
+    chain_created_at        TIMESTAMPTZ DEFAULT NOW(),
+    chain_updated_at        TIMESTAMPTZ DEFAULT NOW(),
+    chain_cycle_time        INTERVAL DEFAULT NULL,
+    chain_terminated_at     TIMESTAMPTZ DEFAULT NULL,
 
-    CONSTRAINT unique_task_per_category UNIQUE (tsk_cat_id, tsk_title)
+    CONSTRAINT unique_chain_per_category UNIQUE (chain_cat_id, chain_title)
 );
+
+-- TASK_CHAIN_LINKS
+CREATE TABLE IF NOT EXISTS task_chain_links (
+    link_id             SERIAL PRIMARY KEY,
+    link_status         task_status NOT NULL DEFAULT 'open',
+    link_created_at     TIMESTAMPTZ DEFAULT NOW(),
+    link_expires_at     TIMESTAMPTZ DEFAULT NULL,
+    link_notify_time    TIMESTAMPTZ DEFAULT NULL,
+    link_chain_id       UUID NOT NULL REFERENCES task_chains(chain_id) ON DELETE CASCADE,
+    link_prev_id        INT DEFAULT NULL REFERENCES task_chain_links(link_id) ON DELETE SET NULL,
+    link_is_latest      BOOLEAN NOT NULL DEFAULT TRUE
+);
+
+CREATE OR REPLACE VIEW tasks AS
+SELECT
+    chains.chain_id AS tsk_id,
+    chains.chain_cat_id AS tsk_cat_id,
+    chains.chain_title AS tsk_title,
+    chains.chain_description AS tsk_description,
+    links.link_status AS tsk_status,
+    chains.chain_usr_comment AS tsk_usr_comment,
+    chains.chain_created_at AS tsk_created_at,
+    chains.chain_updated_at AS tsk_updated_at,
+    links.link_expires_at AS tsk_expires_at,
+    chains.chain_cycle_time AS tsk_cycle_time,
+    links.link_notify_time AS tsk_notify_time
+FROM task_chains AS chains
+LEFT JOIN task_chain_links AS links ON chains.chain_id = links.link_chain_id
+WHERE links.link_is_latest = TRUE AND chains.chain_terminated_at IS NULL;

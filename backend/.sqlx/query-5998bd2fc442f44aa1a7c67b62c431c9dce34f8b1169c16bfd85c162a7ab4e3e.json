@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE task_chain_links\n            SET link_is_latest = FALSE\n            WHERE link_chain_id = $1 AND link_is_latest = TRUE\n            RETURNING link_id",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "link_id",
+        "type_info": "Int4"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "5998bd2fc442f44aa1a7c67b62c431c9dce34f8b1169c16bfd85c162a7ab4e3e"
+}
