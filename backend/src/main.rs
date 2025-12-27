@@ -4,7 +4,7 @@ use todo_list::{
     app::{self, AppState},
     config::Configuration,
     database::persistent::PrimaryDatabase,
-    service::{auth::AuthService, message_client::EmailClient, task_scheduler::SchedulerService},
+    service::{auth::AuthService, message_client::MessageClient, task_scheduler::SchedulerService},
 };
 use tokio::net::TcpListener;
 use tower_http::cors::CorsLayer;
@@ -28,13 +28,19 @@ async fn main() {
 
     let auth_service = AuthService::new(config.auth_config.clone());
 
-    let email_client = Arc::new(EmailClient::new());
+    let email_client = Arc::new(MessageClient::new());
 
     let scheduler_service = Arc::new(
         SchedulerService::init(db.clone(), email_client.clone())
             .await
             .expect("cannot fetch scheduled tasks from database"),
     );
+
+    scheduler_service
+        .clone()
+        .start()
+        .await
+        .expect("cannot start scheduler service");
 
     let app_state = AppState {
         db,

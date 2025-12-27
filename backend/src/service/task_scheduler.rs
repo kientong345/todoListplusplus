@@ -10,7 +10,7 @@ use uuid::Uuid;
 use crate::{
     database::persistent::PrimaryDatabase,
     model::task::TaskDatabase,
-    service::{error::ServiceError, message_client::EmailClient},
+    service::{error::ServiceError, message_client::MessageClient},
     utils::{pg_interval_to_time, sleep_until_dt},
 };
 
@@ -86,13 +86,13 @@ pub struct SchedulerService {
     tx: Sender<UpdateEvent>,
     rx: Mutex<Receiver<UpdateEvent>>,
 
-    message_client: Arc<EmailClient>,
+    message_client: Arc<MessageClient>,
 }
 
 impl SchedulerService {
     pub async fn init(
         db: PrimaryDatabase,
-        message_client: Arc<EmailClient>,
+        message_client: Arc<MessageClient>,
     ) -> Result<Self, ServiceError> {
         let scheduled_taskmap = Arc::new(RwLock::new(HashMap::new()));
         let (tx, rx) = mpsc::channel(999);

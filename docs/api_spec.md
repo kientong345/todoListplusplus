@@ -279,7 +279,7 @@
   "description": "Task description",
   "expiresAt": "2023-01-02T00:00:00Z",
   "cycleTime": "1 day",
-  "preNotifyTime": "1 hour"
+  "notifyTime": "1 hour"
 }
 ```
 
@@ -307,7 +307,7 @@
     "updatedAt": "2023-01-01T00:00:00Z",
     "expiresAt": "2023-01-02T00:00:00Z",
     "cycleTime": "1 day",
-    "preNotifyTime": "1 hour"
+    "notifyTime": "1 hour"
   }
   ```
 

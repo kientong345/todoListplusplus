@@ -1,9 +1,9 @@
 #[derive(Clone)]
-pub struct EmailClient {
+pub struct MessageClient {
     client: reqwest::Client,
 }
 
-impl EmailClient {
+impl MessageClient {
     pub fn new() -> Self {
         Self { client: reqwest::Client::new() }
     }

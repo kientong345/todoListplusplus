@@ -1,7 +1,6 @@
 use chrono::{DateTime, Duration, Utc};
 use serde::{de::DeserializeOwned, Deserialize, Deserializer, Serialize, Serializer};
 use sqlx::postgres::types::PgInterval;
-use tokio::time::Instant;
 
 /// Converts a vector of any type that implements ToString into a vector of strings
 pub fn vec_stringify<T: ToString>(vec: Vec<T>) -> Vec<String> {
@@ -153,5 +152,10 @@ pub fn pg_interval_to_time(interval: PgInterval) -> Duration {
 }
 
 pub async fn sleep_until_dt(datetime: DateTime<Utc>) {
-    tokio::time::sleep_until(Instant::now() + (datetime - Utc::now()).to_std().unwrap()).await
+    let now = Utc::now();
+    if datetime > now {
+        if let Ok(duration) = (datetime - now).to_std() {
+            tokio::time::sleep(duration).await;
+        }
+    }
 }

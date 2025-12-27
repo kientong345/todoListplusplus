@@ -27,7 +27,7 @@ impl Paginate<TaskSearchParams> for TaskMinimal {
                 tsk_description AS description, tsk_status AS status,
                 tsk_usr_comment AS user_comment, tsk_created_at AS created_at,
                 tsk_updated_at AS updated_at, tsk_expires_at AS expires_at,
-                tsk_cycle_time AS cycle_time, tsk_pre_notify_time AS pre_notify_time
+                tsk_cycle_time AS cycle_time, tsk_notify_time AS notify_time
             FROM tasks
             WHERE tsk_cat_id = $1 AND tsk_title ILIKE $2
             ORDER BY {}
