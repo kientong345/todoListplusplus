@@ -1,33 +1,41 @@
 # Build stage
-FROM rust:latest AS builder
+FROM rust:1.85-slim-bookworm AS builder
 
-RUN apt-get update && apt-get install -y build-essential
+# Install build dependencies
+RUN apt-get update && apt-get install -y \
+    pkg-config \
+    libssl-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /usr/src/my-checklist
+WORKDIR /app
 
+# Copy the source code
 COPY . .
 
-ENV SQLX_OFFLINE=true
+ARG SQLX_OFFLINE=true
 
+# Build the application
 RUN cargo build --release
 
+# Runtime stage
+FROM debian:bookworm-slim
 
-# Production stage
-FROM debian:bookworm-slim AS final
-
+# Install runtime dependencies
 RUN apt-get update && apt-get install -y \
-    libssl3 \
+    openssl \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /usr/local/bin
+WORKDIR /app
 
-COPY --from=builder /usr/src/my-checklist/target/release/my-checklist .
-
-# copy runtime configuration files
+# Copy the binary from the builder stage
+COPY --from=builder /app/target/release/todo-list-plusplus .
+# Copy config if needed
 COPY config.json .
 COPY migrations ./migrations
 
+# Expose the application port
 EXPOSE 3000
 
-CMD ["./my-checklist"]
+# Run the application
+CMD ["./todo-list-plusplus"]
