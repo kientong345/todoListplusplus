@@ -11,8 +11,8 @@ impl AuthConfig {
     pub fn get() -> AuthConfig {
         AuthConfig {
             jwt_secret: std::env::var("JWT_SECRET").expect("JWT_SECRET is not set"),
-            access_token_expire_min: 60,
-            refresh_token_expire_min: 7 * 24 * 60,
+            access_token_expire_min: 43200, // 1 month
+            refresh_token_expire_min: 43200 * 6, // 6 months
         }
     }
 }
