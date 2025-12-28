@@ -3,6 +3,7 @@ FROM rust:1.85-slim-bookworm AS builder
 
 # Install build dependencies
 RUN apt-get update && apt-get install -y \
+    curl \
     pkg-config \
     libssl-dev \
     && rm -rf /var/lib/apt/lists/*
