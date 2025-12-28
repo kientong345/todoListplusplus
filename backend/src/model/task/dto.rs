@@ -2,6 +2,7 @@ use std::str::FromStr;
 
 use serde::{Deserialize, Serialize};
 use sqlx::PgConnection;
+use utoipa::ToSchema;
 use uuid::Uuid;
 
 use crate::{
@@ -15,13 +16,22 @@ use crate::{
     utils::{datetime_to_string, pg_interval_to_string, string_to_datetime, string_to_pg_interval},
 };
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct TaskMinimalDto {
+    #[schema(example = "123e4567-e89b-12d3-a456-426614174000")]
     pub id: String,
+
+    #[schema(example = "My Task")]
     pub title: String,
+
+    #[schema(example = "new_update")]
     pub status: String,
+
+    #[schema(example = "2022-01-01T00:00:00.000Z")]
     pub expires_at: Option<String>,
+
+    #[schema(example = "1 day")]
     pub cycle_time: Option<String>,
 }
 
@@ -37,20 +47,43 @@ impl From<TaskMinimal> for TaskMinimalDto {
     }
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct TaskDetailDto {
+    #[schema(example = "123e4567-e89b-12d3-a456-426614174000")]
     pub id: String,
+
+    #[schema(example = "123e4567-e89b-12d3-a456-426614174000")]
     pub category_id: String,
+
+    #[schema(example = "My Category")]
     pub category_name: String,
+
+    #[schema(example = "My Task")]
     pub title: String,
+
+    #[schema(example = "This is a task description")]
     pub description: Option<String>,
+
+    #[schema(example = "new_update")]
     pub status: String,
+
+    #[schema(example = "My User Comment")]
     pub user_comment: Option<String>,
+
+    #[schema(example = "2022-01-01T00:00:00.000Z")]
     pub created_at: Option<String>,
+
+    #[schema(example = "2022-01-01T00:00:00.000Z")]
     pub updated_at: Option<String>,
+
+    #[schema(example = "2022-01-01T00:00:00.000Z")]
     pub expires_at: Option<String>,
+
+    #[schema(example = "1 day")]
     pub cycle_time: Option<String>,
+
+    #[schema(example = "2022-01-01T00:00:00.000Z")]
     pub notify_time: Option<String>,
 }
 
@@ -73,13 +106,22 @@ impl From<TaskDetail> for TaskDetailDto {
     }
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct TaskCreateDto {
+    #[schema(example = "My Task")]
     pub title: String,
+
+    #[schema(example = "This is a task description")]
     pub description: Option<String>,
+
+    #[schema(example = "2022-01-01T00:00:00.000Z")]
     pub expires_at: Option<String>,
+
+    #[schema(example = "1 day")]
     pub cycle_time: Option<String>,
+
+    #[schema(example = "2022-01-01T00:00:00.000Z")]
     pub notify_time: Option<String>,
 }
 
@@ -96,12 +138,19 @@ impl TaskCreateDto {
     }
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct TaskUpdateDto {
+    #[schema(example = "My Task")]
     pub title: Option<String>,
+
+    #[schema(example = "This is a task description")]
     pub description: Option<String>,
+
+    #[schema(example = "new_update")]
     pub status: Option<String>,
+
+    #[schema(example = "My User Comment")]
     pub user_comment: Option<String>,
 }
 
@@ -140,11 +189,16 @@ impl TaskUpdateParams {
     }
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct TaskScheduleDto {
+    #[schema(example = "2022-01-01T00:00:00.000Z")]
     pub expires_at: Option<String>,
+
+    #[schema(example = "1 day")]
     pub cycle_time: Option<String>,
+
+    #[schema(example = "2022-01-01T00:00:00.000Z")]
     pub notify_time: Option<String>,
 }
 
@@ -164,7 +218,7 @@ impl TaskScheduleDto {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, ToSchema)]
 pub struct TaskDeleteDto(String);
 
 impl From<String> for TaskDeleteDto {
@@ -191,13 +245,22 @@ impl TaskDeleteDto {
     }
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct TaskSearchDto {
+    #[schema(example = "My Task")]
     pub title_pattern: Option<String>,
+
+    #[schema(example = "new_update")]
     pub status: Option<Vec<String>>,
+
+    #[schema(example = "1")]
     pub page: i32,
+
+    #[schema(example = "10")]
     pub page_size: i32,
+
+    #[schema(example = "latest")]
     pub sort_by: String, // 'latest' | 'new-update' | 'deadline'
 }
 

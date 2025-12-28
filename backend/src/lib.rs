@@ -4,6 +4,7 @@ pub mod controller;
 pub mod database;
 pub mod middleware;
 pub mod model;
+pub mod openapi;
 pub mod routes;
 pub mod service;
 pub mod utils;

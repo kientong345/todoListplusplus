@@ -13,6 +13,13 @@ use crate::{
     },
 };
 
+#[utoipa::path(
+    get,
+    path = "/users/me",
+    responses(
+        (status = 200, description = "Success", body = UserInfoDto),
+    ),
+)]
 pub async fn get_me(
     State(state): State<AppState>,
     Extension(access_claims): Extension<AccessClaims>,
@@ -23,6 +30,14 @@ pub async fn get_me(
     Ok((StatusCode::OK, Json(user.into())))
 }
 
+#[utoipa::path(
+    put,
+    path = "/users/me",
+    request_body = UserUpdateDto,
+    responses(
+        (status = 200, description = "Success", body = UserInfoDto),
+    ),
+)]
 pub async fn update_me(
     State(state): State<AppState>,
     Extension(access_claims): Extension<AccessClaims>,

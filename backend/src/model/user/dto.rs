@@ -1,6 +1,7 @@
 use std::str::FromStr;
 
 use serde::{Deserialize, Serialize};
+use utoipa::ToSchema;
 use uuid::Uuid;
 
 use crate::{
@@ -8,15 +9,28 @@ use crate::{
     utils::datetime_to_string,
 };
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct UserInfoDto {
+    #[schema(example = "123e4567-e89b-12d3-a456-426614174000")]
     pub id: String,
+
+    #[schema(example = "My Display Name")]
     pub display_name: String,
+
+    #[schema(example = "myemail@example.com")]
     pub email: String,
+
+    #[schema(example = "https://example.com/avatar.jpg")]
     pub avatar_url: Option<String>,
+
+    #[schema(example = "This is a user description")]
     pub description: Option<String>,
+
+    #[schema(example = "2022-01-01T00:00:00.000Z")]
     pub created_at: Option<String>,
+
+    #[schema(example = "2022-01-01T00:00:00.000Z")]
     pub updated_at: Option<String>,
 }
 
@@ -34,11 +48,16 @@ impl From<UserInfo> for UserInfoDto {
     }
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct UserUpdateDto {
+    #[schema(example = "My Display Name")]
     pub display_name: Option<String>,
+
+    #[schema(example = "https://example.com/avatar.jpg")]
     pub avatar_url: Option<String>,
+
+    #[schema(example = "This is a user description")]
     pub description: Option<String>,
 }
 

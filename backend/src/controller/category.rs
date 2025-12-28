@@ -19,11 +19,23 @@ use crate::{
             },
             CategoryDatabase, CategoryDetail, CategoryMinimal,
         },
-        pagination::Paginate,
+        pagination::{PageDto, Paginate},
         user_auth::AccessClaims,
     },
 };
 
+#[utoipa::path(
+    get,
+    path = "/categories",
+    params(
+        ("page" = i32, Query, description = "Page number"),
+        ("pageSize" = i32, Query, description = "Page size"),
+        ("sortBy" = String, Query, description = "Sort by"),
+    ),
+    responses(
+        (status = 200, description = "Success", body = PageDto<CategoryMinimalDto>),
+    ),
+)]
 pub async fn get_page(
     State(state): State<AppState>,
     Query(query): Query<CategorySearchDto>,
@@ -41,6 +53,16 @@ pub async fn get_page(
     Ok(Json(json!(page)))
 }
 
+#[utoipa::path(
+    get,
+    path = "/categories/{id}",
+    params(
+        ("id" = String, Path, description = "Category ID"),
+    ),
+    responses(
+        (status = 200, description = "Success", body = CategoryDetailDto),
+    ),
+)]
 pub async fn find_by_id(
     State(state): State<AppState>,
     Path(category_id): Path<String>,
@@ -58,6 +80,14 @@ pub async fn find_by_id(
     Ok(Json(json!(category)))
 }
 
+#[utoipa::path(
+    post,
+    path = "/categories",
+    request_body = CategoryCreateDto,
+    responses(
+        (status = 201, description = "Success", body = CategoryDetailDto),
+    ),
+)]
 pub async fn create(
     State(state): State<AppState>,
     Extension(access_claims): Extension<AccessClaims>,
@@ -71,6 +101,16 @@ pub async fn create(
     Ok(StatusCode::CREATED)
 }
 
+#[utoipa::path(
+    delete,
+    path = "/categories/{id}",
+    params(
+        ("id" = String, Path, description = "Category ID"),
+    ),
+    responses(
+        (status = 200, description = "Success", body = CategoryDetailDto),
+    ),
+)]
 pub async fn delete(
     State(state): State<AppState>,
     Path(id): Path<String>,
@@ -90,6 +130,17 @@ pub async fn delete(
     Ok(StatusCode::OK)
 }
 
+#[utoipa::path(
+    put,
+    path = "/categories/{id}",
+    params(
+        ("id" = String, Path, description = "Category ID"),
+    ),
+    request_body = CategoryUpdateDto,
+    responses(
+        (status = 200, description = "Success", body = CategoryDetailDto),
+    ),
+)]
 pub async fn update(
     State(state): State<AppState>,
     Path(id): Path<String>,

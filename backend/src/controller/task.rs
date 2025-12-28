@@ -12,7 +12,7 @@ use crate::{
     app::AppState,
     controller::error::ControllerError,
     model::{
-        pagination::Paginate,
+        pagination::{PageDto, Paginate},
         task::{
             dto::{
                 TaskCreateDto, TaskDeleteDto, TaskDetailDto, TaskMinimalDto, TaskSearchDto,
@@ -26,6 +26,19 @@ use crate::{
     utils::pg_interval_to_time,
 };
 
+#[utoipa::path(
+    get,
+    path = "/tasks/{category_id}",
+    params(
+        ("category_id" = String, Path, description = "Category ID"),
+        ("page" = i32, Query, description = "Page number"),
+        ("pageSize" = i32, Query, description = "Page size"),
+        ("sortBy" = String, Query, description = "Sort by"),
+    ),
+    responses(
+        (status = 200, description = "Success", body = PageDto<TaskMinimalDto>),
+    ),
+)]
 pub async fn get_page(
     State(state): State<AppState>,
     Query(query): Query<TaskSearchDto>,
@@ -44,6 +57,17 @@ pub async fn get_page(
     Ok(Json(json!(page)))
 }
 
+#[utoipa::path(
+    get,
+    path = "/tasks/{category_id}/{task_id}",
+    params(
+        ("category_id" = String, Path, description = "Category ID"),
+        ("task_id" = String, Path, description = "Task ID"),
+    ),
+    responses(
+        (status = 200, description = "Success", body = TaskDetailDto),
+    ),
+)]
 pub async fn find_by_id(
     State(state): State<AppState>,
     Path((_category_id, task_id)): Path<(String, String)>,
@@ -61,6 +85,17 @@ pub async fn find_by_id(
     Ok(Json(json!(task)))
 }
 
+#[utoipa::path(
+    post,
+    path = "/tasks/{category_id}",
+    params(
+        ("category_id" = String, Path, description = "Category ID"),
+    ),
+    request_body = TaskCreateDto,
+    responses(
+        (status = 201, description = "Success", body = TaskDetailDto),
+    ),
+)]
 pub async fn create(
     State(state): State<AppState>,
     Path(category_id): Path<String>,
@@ -90,15 +125,26 @@ pub async fn create(
     Ok(StatusCode::CREATED)
 }
 
+#[utoipa::path(
+    delete,
+    path = "/tasks/{category_id}/{task_id}",
+    params(
+        ("category_id" = String, Path, description = "Category ID"),
+        ("task_id" = String, Path, description = "Task ID"),
+    ),
+    responses(
+        (status = 200, description = "Success", body = TaskDetailDto),
+    ),
+)]
 pub async fn delete(
     State(state): State<AppState>,
-    Path(id): Path<String>,
+    Path((_category_id, task_id)): Path<(String, String)>,
     Extension(access_claims): Extension<AccessClaims>,
 ) -> Result<StatusCode, ControllerError> {
     let user_id = access_claims.sub.parse().unwrap();
     let mut connection = state.db.start_transaction().await?;
 
-    let validated_id = TaskDeleteDto::from(id)
+    let validated_id = TaskDeleteDto::from(task_id)
         .validate(user_id, &mut *connection)
         .await?;
 
@@ -109,6 +155,18 @@ pub async fn delete(
     Ok(StatusCode::OK)
 }
 
+#[utoipa::path(
+    put,
+    path = "/tasks/{category_id}/{task_id}",
+    params(
+        ("category_id" = String, Path, description = "Category ID"),
+        ("task_id" = String, Path, description = "Task ID"),
+    ),
+    request_body = TaskUpdateDto,
+    responses(
+        (status = 200, description = "Success", body = TaskDetailDto),
+    ),
+)]
 pub async fn update(
     State(state): State<AppState>,
     Path((_category_id, task_id)): Path<(String, String)>,

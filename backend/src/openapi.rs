@@ -1,0 +1,51 @@
+use utoipa::OpenApi;
+
+#[derive(OpenApi)]
+#[openapi(
+    paths(
+        crate::controller::auth::handle_register,
+        crate::controller::auth::handle_login,
+        crate::controller::auth::handle_google_login,
+        crate::controller::auth::handle_refresh,
+        crate::controller::auth::handle_logout,
+        crate::controller::category::get_page,
+        crate::controller::category::find_by_id,
+        crate::controller::category::create,
+        crate::controller::category::update,
+        crate::controller::category::delete,
+        crate::controller::user::get_me,
+        crate::controller::user::update_me,
+        crate::controller::task::get_page,
+        crate::controller::task::find_by_id,
+        crate::controller::task::create,
+        crate::controller::task::update,
+        crate::controller::task::delete,
+    ),
+    components(schemas(
+        crate::model::user_auth::auth::RegisterSchema,
+        crate::model::user_auth::auth::LoginSchema,
+        crate::model::user_auth::oauth::OAuthSchema,
+        crate::model::user_auth::oauth::AuthorizationCode,
+        crate::model::user_auth::oauth::GoogleUserResult,
+        crate::model::user_auth::oauth::OAuthResponse,
+        crate::model::category::dto::CategoryMinimalDto,
+        crate::model::category::dto::CategoryDetailDto,
+        crate::model::category::dto::CategoryCreateDto,
+        crate::model::category::dto::CategoryUpdateDto,
+        crate::model::category::dto::CategorySearchDto,
+        crate::model::user::dto::UserInfoDto,
+        crate::model::user::dto::UserUpdateDto,
+        crate::model::task::dto::TaskMinimalDto,
+        crate::model::task::dto::TaskDetailDto,
+        crate::model::task::dto::TaskCreateDto,
+        crate::model::task::dto::TaskUpdateDto,
+        crate::model::task::dto::TaskSearchDto,
+    )),
+    tags(
+        (name = "auth", description = "Authentication"),
+        (name = "category", description = "Category"),
+        (name = "user", description = "User"),
+        (name = "task", description = "Task"),
+    ),
+)]
+pub struct ApiDoc;

@@ -1,8 +1,9 @@
 use serde::Deserialize;
+use utoipa::ToSchema;
 
 use crate::{model::error::ModelError, utils::validate_email_name};
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct RegisterSchema {
     pub display_name: String,
@@ -23,7 +24,7 @@ impl RegisterSchema {
     }
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct LoginSchema {
     pub email: String,

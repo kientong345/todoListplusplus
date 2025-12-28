@@ -19,6 +19,14 @@ use crate::{
     service::oauth_client::OAuthClient,
 };
 
+#[utoipa::path(
+    post,
+    path = "/auth/register",
+    request_body = RegisterSchema,
+    responses(
+        (status = 201, description = "Success", body = RegisterSchema),
+    ),
+)]
 pub async fn handle_register(
     State(state): State<AppState>,
     Json(registration_data): Json<RegisterSchema>,
@@ -37,6 +45,14 @@ pub async fn handle_register(
     Ok(StatusCode::CREATED)
 }
 
+#[utoipa::path(
+    post,
+    path = "/auth/login",
+    request_body = LoginSchema,
+    responses(
+        (status = 200, description = "Success", body = LoginSchema),
+    ),
+)]
 pub async fn handle_login(
     State(state): State<AppState>,
     jar: CookieJar,
@@ -66,6 +82,14 @@ pub async fn handle_login(
     ))
 }
 
+#[utoipa::path(
+    post,
+    path = "/auth/google/login",
+    request_body = AuthorizationCode,
+    responses(
+        (status = 200, description = "Success", body = AuthorizationCode),
+    ),
+)]
 pub async fn handle_google_login(
     State(state): State<AppState>,
     Query(auth_code): Query<AuthorizationCode>,
@@ -104,6 +128,13 @@ pub async fn handle_google_login(
     ))
 }
 
+#[utoipa::path(
+    post,
+    path = "/auth/refresh",
+    responses(
+        (status = 200, description = "Success", body = AuthorizationCode),
+    ),
+)]
 pub async fn handle_refresh(
     State(state): State<AppState>,
     jar: CookieJar,
@@ -135,6 +166,13 @@ pub async fn handle_refresh(
     ))
 }
 
+#[utoipa::path(
+    post,
+    path = "/auth/logout",
+    responses(
+        (status = 200, description = "Success", body = Value),
+    ),
+)]
 pub async fn handle_logout(
     State(_state): State<AppState>,
     jar: CookieJar,

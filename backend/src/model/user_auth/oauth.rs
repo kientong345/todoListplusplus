@@ -1,6 +1,7 @@
 use serde::Deserialize;
+use utoipa::ToSchema;
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, ToSchema)]
 pub struct OAuthSchema {
     pub google_id: String,
     pub display_name: String,
@@ -8,7 +9,7 @@ pub struct OAuthSchema {
     pub avatar_url: String,
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, ToSchema)]
 pub struct OAuthResponse {
     pub access_token: String,
     pub expires_in: i32,
@@ -18,7 +19,7 @@ pub struct OAuthResponse {
     pub id_token: String,
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, ToSchema)]
 pub struct GoogleUserResult {
     pub id: String,
     pub email: String,
@@ -40,7 +41,7 @@ impl Into<OAuthSchema> for GoogleUserResult {
     }
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, ToSchema)]
 pub struct AuthorizationCode {
     pub code: String,
 }

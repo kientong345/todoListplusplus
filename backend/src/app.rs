@@ -1,10 +1,13 @@
 use std::sync::Arc;
 
 use axum::Router;
+use utoipa::OpenApi;
+use utoipa_swagger_ui::SwaggerUi;
 
 use crate::{
     config::Configuration,
     database::persistent::PrimaryDatabase,
+    openapi::ApiDoc,
     routes,
     service::{auth::AuthService, message_client::MessageClient, task_scheduler::SchedulerService},
 };
@@ -30,4 +33,8 @@ pub async fn create_app(state: AppState) -> Router {
         .merge(routes::task::create_route(state.clone()))
         // default routes
         .merge(routes::create_default_route())
+        // health check routes
+        .merge(routes::create_health_check_route())
+        // openapi routes
+        .merge(SwaggerUi::new("/swagger/api-docs").url("/api-docs/openapi.json", ApiDoc::openapi()))
 }

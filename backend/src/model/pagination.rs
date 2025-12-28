@@ -1,5 +1,6 @@
 use serde::Serialize;
 use sqlx::PgConnection;
+use utoipa::ToSchema;
 
 use crate::model::error::ModelError;
 
@@ -12,13 +13,22 @@ pub struct Page<T> {
     pub page_size: i32,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct PageDto<T> {
+    #[schema(example = "[item21, item22, item23, ..., item30]")]
     pub items: Vec<T>,
+
+    #[schema(example = 108)]
     pub total_items: i64,
+
+    #[schema(example = 11)]
     pub total_pages: i32,
+
+    #[schema(example = 3)]
     pub current_page: i32,
+
+    #[schema(example = 10)]
     pub page_size: i32,
 }
 
