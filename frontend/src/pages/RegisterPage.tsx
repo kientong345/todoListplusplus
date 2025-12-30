@@ -27,10 +27,10 @@ export default function RegisterPage() {
     setIsLoading(true);
     try {
       // Register
-      await authService.register(displayName, email, password);
+      await authService.register({displayName, email, password});
       
       // Auto login after registration
-      const { access_token } = await authService.login(email, password);
+      const { access_token } = await authService.login({email, password});
       login(access_token);
       
       navigate("/");

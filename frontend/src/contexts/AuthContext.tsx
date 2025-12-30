@@ -1,11 +1,11 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import { user as userService } from "@/services/api";
-import type { User } from "@/types";
+import type { UserDto } from "@/types/user";
 
 interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
-  user: User | null;
+  user: UserDto | null;
   login: (token: string) => Promise<void>;
   logout: () => void;
 }
@@ -14,7 +14,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<UserDto | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const fetchUser = async () => {

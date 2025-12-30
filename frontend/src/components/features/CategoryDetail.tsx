@@ -1,23 +1,14 @@
 import { Card, CardContent } from "@/components/ui/card";
 
 import { Progress } from "@/components/ui/progress";
+import type { CategoryDetailDto } from "@/types/category";
 import { Folder } from "lucide-react";
 
 interface CategoryDetailProps {
-  category: {
-    id: string;
-    name: string;
-    imageUrl?: string | null;
-    description?: string | null;
-    taskCount: number;
-    openedTaskCount: number;
-    canceledTaskCount: number;
-    doneTaskCount: number;
-    progress: number;
-  };
+  category: CategoryDetailDto;
 }
 
-export function CategoryDetail({ category }: CategoryDetailProps) {
+export function CategoryDetail({category}: CategoryDetailProps) {
   return (
     <Card className="border-none shadow-sm bg-muted/30 mb-8">
       <CardContent className="p-6">
@@ -60,9 +51,9 @@ export function CategoryDetail({ category }: CategoryDetailProps) {
             <div className="space-y-2">
               <div className="flex justify-between text-sm font-medium">
                 <span>Progress</span>
-                <span>{Math.round(category.progress)}%</span>
+                <span>{Math.round(category.progress * 100)}%</span>
               </div>
-              <Progress value={category.progress} className="h-2" />
+              <Progress value={category.progress * 100} className="h-2" />
             </div>
           </div>
         </div>

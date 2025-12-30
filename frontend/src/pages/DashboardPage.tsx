@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { CategoryCard } from "@/components/features/CategoryCard";
-import type { CategoryMinimal } from "@/types";
+import type { CategoryMinimalDto } from "@/types/category";
 import { Plus } from "lucide-react";
 
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -9,14 +9,14 @@ import { CategoryForm } from "@/components/features/CategoryForm";
 import { categories as categoryService } from "@/services/api";
 
 export default function DashboardPage() {
-  const [categories, setCategories] = useState<CategoryMinimal[]>([]);
+  const [categories, setCategories] = useState<CategoryMinimalDto[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
 
   const fetchCategories = async () => {
     setIsLoading(true);
     try {
-      const response = await categoryService.getAll(1, 20, '', 'new-update');
+      const response = await categoryService.getAll({ page: 1, pageSize: 20, namePattern: '', sortBy: 'new-update' });
       setCategories(response.items);
     } catch (error) {
       console.error("Failed to fetch categories:", error);
@@ -34,7 +34,7 @@ export default function DashboardPage() {
     setIsLoading(true);
     try {
       await categoryService.create(data);
-      await fetchCategories(); // Refresh list
+      await fetchCategories();
       setIsAddDialogOpen(false);
     } catch (error) {
       console.error("Failed to create category:", error);

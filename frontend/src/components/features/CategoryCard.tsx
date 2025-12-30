@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import type { CategoryMinimal } from "@/types";
+import type { CategoryMinimalDto } from "@/types/category";
 import { Link } from "react-router-dom";
 import { Folder, MoreVertical, Edit2, Trash2 } from "lucide-react";
 import { 
@@ -30,7 +30,7 @@ import { Button } from "@/components/ui/button";
 import { CategoryForm } from "./CategoryForm";
 
 interface CategoryCardProps {
-  category: CategoryMinimal;
+  category: CategoryMinimalDto;
   onUpdate?: (id: string, data: { name: string; imageUrl: string; description: string }) => void;
   onDelete?: (id: string) => void;
 }

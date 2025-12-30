@@ -4,35 +4,51 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import type { Task } from "@/types";
+import type { TaskDetailDto, TaskCreateDto } from "@/types/task";
 
-interface TaskFormProps {
-  initialData?: Partial<Task>;
-  onSubmit: (data: Partial<Task>) => void;
+interface TaskCreateFormProps {
+  initialData?: TaskDetailDto;
+  onSubmit: (data: TaskCreateDto) => Promise<void>;
   onCancel: () => void;
   isLoading?: boolean;
   submitLabel: string;
 }
 
-export function TaskForm({ 
+export function TaskCreateForm({ 
   initialData, 
   onSubmit, 
   onCancel, 
   isLoading, 
   submitLabel 
-}: TaskFormProps) {
-  const [title, setTitle] = useState(initialData?.title || "");
-  const [description, setDescription] = useState(initialData?.description || "");
-  const [cycleTime, setCycleTime] = useState<string>(initialData?.cycleTime || "none");
-  const [expiresAt, setExpiresAt] = useState(initialData?.expiresAt || "");
+}: TaskCreateFormProps) {
+  const [title, setTitle] = useState<string>(initialData?.title || "");
+  const [description, setDescription] = useState<string | null>(initialData?.description || null);
+  const [cycleTime, setCycleTime] = useState<string | null>(initialData?.cycleTime || null);
+  const [expiresAt, setExpiresAt] = useState<string | null>(initialData?.expiresAt || null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit({ 
-      title, 
-      description: description || null, 
-      cycleTime: cycleTime === "none" ? null : cycleTime as Task['cycleTime'], 
-      expiresAt: expiresAt || null 
+    let cycleTimeValue: TaskDetailDto['cycleTime'] = null;
+    switch (cycleTime) {
+      case "none":
+        cycleTimeValue = null;
+        break;
+      case "daily":
+        cycleTimeValue = "0 1 0";
+        break;
+      case "weekly":
+        cycleTimeValue = "0 7 0";
+        break;
+      case "monthly":
+        cycleTimeValue = "1 0 0";
+        break;
+    }
+    onSubmit({
+      title,
+      description: description || null,
+      expiresAt: expiresAt || null,
+      cycleTime: cycleTimeValue,
+      notifyTime: null,
     });
   };
 
@@ -77,7 +93,7 @@ export function TaskForm({
             <Input
               id="expiresAt"
               type="date"
-              value={expiresAt}
+              value={expiresAt || ""}
               onChange={(e) => setExpiresAt(e.target.value)}
               disabled={isLoading || (cycleTime !== "none" && cycleTime !== "")}
               className="h-11 shadow-sm block"

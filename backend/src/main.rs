@@ -2,6 +2,7 @@ use std::{net::SocketAddr, sync::Arc};
 
 use todo_list_plusplus::{
     app::{self, AppState},
+    cache::local::LocalCache,
     config::Configuration,
     database::persistent::PrimaryDatabase,
     service::{auth::AuthService, message_client::MessageClient, task_scheduler::SchedulerService},
@@ -28,10 +29,10 @@ async fn main() {
 
     let auth_service = AuthService::new(config.auth_config.clone());
 
-    let email_client = Arc::new(MessageClient::new());
+    // let email_client = Arc::new(MessageClient::new());
 
     let scheduler_service = Arc::new(
-        SchedulerService::init(db.clone(), email_client.clone())
+        SchedulerService::init(db.clone() /* email_client.clone() */)
             .await
             .expect("cannot fetch scheduled tasks from database"),
     );
@@ -45,9 +46,10 @@ async fn main() {
     let app_state = AppState {
         db,
         config,
+        cache: Arc::new(LocalCache::new()),
         auth_service,
         scheduler_service,
-        email_client,
+        // email_client,
     };
 
     // test-mode

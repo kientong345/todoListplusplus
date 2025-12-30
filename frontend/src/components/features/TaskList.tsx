@@ -2,22 +2,10 @@ import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent } from "@/components/ui/card";
-import { Clock, MoreVertical, Edit2, Trash2 } from "lucide-react";
+import { Clock, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import type { Task } from "@/types";
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuTrigger 
-} from "@/components/ui/dropdown-menu";
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogDescription, 
-  DialogHeader, 
-  DialogTitle 
-} from "@/components/ui/dialog";
+import type { TaskMinimalDto } from "@/types/task";
+
 import { 
   AlertDialog, 
   AlertDialogAction, 
@@ -28,30 +16,16 @@ import {
   AlertDialogHeader, 
   AlertDialogTitle 
 } from "@/components/ui/alert-dialog";
-import { TaskForm } from "./TaskForm";
 
 interface TaskListProps {
-  tasks: Task[];
+  tasks: TaskMinimalDto[];
   onToggleStatus: (taskId: string) => void;
-  onUpdate?: (taskId: string, data: Partial<Task>) => void;
   onDelete?: (taskId: string) => void;
 }
 
-export function TaskList({ tasks, onToggleStatus, onUpdate, onDelete }: TaskListProps) {
-  const [editingTask, setEditingTask] = useState<Task | null>(null);
-  const [deletingTask, setDeletingTask] = useState<Task | null>(null);
+export function TaskList({ tasks, onToggleStatus, onDelete }: TaskListProps) {
+  const [deletingTask, setDeletingTask] = useState<TaskMinimalDto | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-
-  const handleUpdate = (data: Partial<Task>) => {
-    if (!editingTask) return;
-    setIsLoading(true);
-    // TODO: API interaction
-    setTimeout(() => {
-      onUpdate?.(editingTask.id, data);
-      setIsLoading(false);
-      setEditingTask(null);
-    }, 1000);
-  };
 
   const handleDelete = () => {
     if (!deletingTask) return;
@@ -81,6 +55,24 @@ export function TaskList({ tasks, onToggleStatus, onUpdate, onDelete }: TaskList
       case 'done': return 'Done';
       case 'canceled': return 'Canceled';
       default: return status;
+    }
+  };
+
+  const getReccurrenceColor = (cycleTime: string | null) => {
+    switch (cycleTime) {
+      case '0 1 0': return 'bg-amber-500 hover:bg-amber-600';
+      case '0 7 0': return 'bg-green-500 hover:bg-green-600';
+      case '1 0 0': return 'bg-pink-500 hover:bg-pink-600';
+      default: return 'bg-gray-500';
+    }
+  };
+
+  const getReccurrenceLabel = (cycleTime: string | null) => {
+    switch (cycleTime) {
+      case '0 1 0': return 'Daily';
+      case '0 7 0': return 'Weekly';
+      case '1 0 0': return 'Monthly';
+      default: return 'None';
     }
   };
 
@@ -121,8 +113,8 @@ export function TaskList({ tasks, onToggleStatus, onUpdate, onDelete }: TaskList
 
               <div className="flex justify-end">
                 {task.cycleTime && task.cycleTime !== 'none' ? (
-                   <Badge variant="outline" className="text-xs capitalize">
-                    {task.cycleTime}
+                   <Badge variant="outline" className={`${getReccurrenceColor(task.cycleTime)} text-xs capitalize`}>
+                    {getReccurrenceLabel(task.cycleTime)}
                    </Badge>
                 ) : task.expiresAt ? (
                   <div className="flex items-center text-xs text-muted-foreground bg-muted px-2 py-1 rounded-md whitespace-nowrap">
@@ -133,44 +125,20 @@ export function TaskList({ tasks, onToggleStatus, onUpdate, onDelete }: TaskList
               </div>
 
               <div className="flex justify-end">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
-                      <MoreVertical className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="rounded-xl">
-                    <DropdownMenuItem onClick={() => setEditingTask(task)}>
-                      <Edit2 className="mr-2 h-4 w-4" /> Edit
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setDeletingTask(task)} className="text-destructive focus:text-destructive">
-                      <Trash2 className="mr-2 h-4 w-4" /> Delete
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                  onClick={() => setDeletingTask(task)}
+                >
+                  <Trash2 className="mr-2 h-4 w-4 text-destructive focus:text-destructive" />
+                </Button>
               </div>
             </CardContent>
           </Card>
         ))
 
       )}
-
-      {/* Edit Task Dialog */}
-      <Dialog open={!!editingTask} onOpenChange={(open) => !open && setEditingTask(null)}>
-        <DialogContent className="sm:max-w-[500px] rounded-2xl">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-bold">Edit Task</DialogTitle>
-            <DialogDescription>Make changes to your task.</DialogDescription>
-          </DialogHeader>
-          <TaskForm
-            initialData={editingTask || {}}
-            onSubmit={handleUpdate}
-            onCancel={() => setEditingTask(null)}
-            submitLabel="Save Changes"
-            isLoading={isLoading}
-          />
-        </DialogContent>
-      </Dialog>
 
       {/* Delete Confirmation */}
       <AlertDialog open={!!deletingTask} onOpenChange={(open) => !open && setDeletingTask(null)}>

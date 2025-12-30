@@ -5,6 +5,7 @@ use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
 
 use crate::{
+    cache::CacheInterface,
     config::Configuration,
     database::persistent::PrimaryDatabase,
     openapi::ApiDoc,
@@ -16,9 +17,10 @@ use crate::{
 pub struct AppState {
     pub db: PrimaryDatabase,
     pub config: Arc<Configuration>,
+    pub cache: Arc<dyn CacheInterface<Error = String>>,
     pub auth_service: AuthService,
     pub scheduler_service: Arc<SchedulerService>,
-    pub email_client: Arc<MessageClient>,
+    // pub email_client: Arc<MessageClient>,
 }
 
 pub async fn create_app(state: AppState) -> Router {

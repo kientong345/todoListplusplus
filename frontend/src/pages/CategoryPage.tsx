@@ -4,16 +4,18 @@ import { Button } from "@/components/ui/button";
 import { CategoryDetail } from "@/components/features/CategoryDetail";
 import { TaskList } from "@/components/features/TaskList";
 import { ArrowLeft, Plus, Loader2 } from "lucide-react";
-import type { Task, Category } from "@/types";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { TaskForm } from "@/components/features/TaskForm";
+import { TaskCreateForm } from "@/components/features/TaskForm";
 import { categories as categoryService, tasks as taskService } from "@/services/api";
+import type { TaskCreateDto } from "@/types/task";
+import type { CategoryDetailDto } from "@/types/category";
+import type { TaskMinimalDto } from "@/types/task";
 
 export default function CategoryPage() {
   const { id } = useParams<{ id: string }>();
   
-  const [category, setCategory] = useState<Category | null>(null);
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const [category, setCategory] = useState<CategoryDetailDto>();
+  const [tasks, setTasks] = useState<TaskMinimalDto[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isAddTaskDialogOpen, setIsAddTaskDialogOpen] = useState(false);
 
@@ -28,7 +30,7 @@ export default function CategoryPage() {
     try {
       const [categoryData, tasksData] = await Promise.all([
         categoryService.getOne(id),
-        taskService.getAll(id, page, PAGE_SIZE, [], '', 'latest')
+        taskService.getAll(id, { page, pageSize: PAGE_SIZE, status: [], titlePattern: '', sortBy: 'latest' })
       ]);
       setCategory(categoryData);
       setTasks(tasksData.items);
@@ -63,7 +65,7 @@ export default function CategoryPage() {
     }
   };
 
-  const handleAddTask = async (data: Partial<Task>) => {
+  const handleAddTask = async (data: TaskCreateDto) => {
     if (!id) return;
     setIsLoading(true);
     try {
@@ -74,17 +76,6 @@ export default function CategoryPage() {
        console.error("Failed to create task:", error);
     } finally {
       setIsLoading(false);
-    }
-  };
-
-
-  const handleUpdateTask = async (taskId: string, data: Partial<Task>) => {
-    if (!id) return;
-    try {
-      await taskService.update(id, taskId, data);
-      await fetchData();
-    } catch (error) {
-      console.error("Failed to update task:", error);
     }
   };
 
@@ -143,7 +134,7 @@ export default function CategoryPage() {
                   Create a new task in this category.
                 </DialogDescription>
               </DialogHeader>
-              <TaskForm
+              <TaskCreateForm
                 onSubmit={handleAddTask}
                 onCancel={() => setIsAddTaskDialogOpen(false)}
                 submitLabel="Create Task"
@@ -156,7 +147,6 @@ export default function CategoryPage() {
         <TaskList 
           tasks={tasks} 
           onToggleStatus={handleToggleStatus} 
-          onUpdate={handleUpdateTask}
           onDelete={handleDeleteTask}
         />
       </div>
