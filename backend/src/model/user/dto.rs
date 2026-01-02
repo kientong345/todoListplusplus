@@ -9,7 +9,7 @@ use crate::{
     utils::datetime_to_string,
 };
 
-#[derive(Debug, Clone, Serialize, ToSchema)]
+#[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct UserInfoDto {
     #[schema(example = "123e4567-e89b-12d3-a456-426614174000")]
@@ -48,7 +48,7 @@ impl From<UserInfo> for UserInfoDto {
     }
 }
 
-#[derive(Debug, Clone, Deserialize, ToSchema)]
+#[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct UserUpdateDto {
     #[schema(example = "My Display Name")]

@@ -10,6 +10,7 @@ use uuid::Uuid;
 
 use crate::{
     app::AppState,
+    cache::{Caching, DEFAULT_TTL_SECONDS},
     controller::error::ControllerError,
     model::{
         pagination::{PageDto, Paginate},
@@ -46,6 +47,23 @@ pub async fn get_page(
     Extension(_access_claims): Extension<AccessClaims>,
 ) -> Result<Json<Value>, ControllerError> {
     // let user_id = access_claims.sub.parse().unwrap();
+    let mut query = query.clone();
+    if let Some(statuses) = &mut query.status {
+        statuses.sort();
+    }
+    let cache_key = format!(
+        "todolist++:tasks:title_pattern={}&status={}&page={}&pageSize={}&sortBy={}",
+        query.title_pattern.clone().unwrap_or("".to_string()),
+        query.status.clone().unwrap_or(vec![]).join(","),
+        query.page,
+        query.page_size,
+        query.sort_by
+    );
+
+    if let Ok(Some(tasks)) = state.cache.get::<PageDto<TaskMinimalDto>>(&cache_key).await {
+        return Ok(Json(json!(tasks)));
+    }
+
     let mut connection = state.db.start_transaction().await?;
 
     let page = TaskMinimal::page(&query.bind(category_id), &mut *connection)
@@ -53,6 +71,11 @@ pub async fn get_page(
         .map_into::<TaskMinimalDto>();
 
     connection.commit().await?;
+
+    let _ = state
+        .cache
+        .set::<PageDto<TaskMinimalDto>>(&cache_key, &page, DEFAULT_TTL_SECONDS)
+        .await;
 
     Ok(Json(json!(page)))
 }
@@ -74,6 +97,12 @@ pub async fn find_by_id(
     Extension(_access_claims): Extension<AccessClaims>,
 ) -> Result<Json<Value>, ControllerError> {
     let task_id = Uuid::from_str(&task_id).unwrap();
+    let cache_key = format!("todolist++:tasks:{}", task_id);
+
+    if let Ok(Some(task)) = state.cache.get::<TaskDetailDto>(&cache_key).await {
+        return Ok(Json(json!(task)));
+    }
+
     let mut connection = state.db.start_transaction().await?;
 
     let task: TaskDetailDto = TaskDetail::get_by_id(task_id, &mut *connection)
@@ -81,6 +110,11 @@ pub async fn find_by_id(
         .into();
 
     connection.commit().await?;
+
+    let _ = state
+        .cache
+        .set::<TaskDetailDto>(&cache_key, &task, DEFAULT_TTL_SECONDS)
+        .await;
 
     Ok(Json(json!(task)))
 }
@@ -104,6 +138,7 @@ pub async fn create(
 ) -> Result<StatusCode, ControllerError> {
     let gmt = state.config.app_config.gmt.clone();
     let create_params = payload.bind(category_id).align_expiration(&gmt);
+    let cache_key_prefix = "todolist++:tasks";
 
     let mut connection = state.db.start_transaction().await?;
     let new_task = TaskDatabase::create_from(&create_params, &mut *connection).await?;
@@ -125,6 +160,8 @@ pub async fn create(
             .expect("oof");
     }
 
+    let _ = state.cache.delete_prefix(&cache_key_prefix).await;
+
     Ok(StatusCode::CREATED)
 }
 
@@ -145,6 +182,8 @@ pub async fn delete(
     Extension(access_claims): Extension<AccessClaims>,
 ) -> Result<StatusCode, ControllerError> {
     let user_id = access_claims.sub.parse().unwrap();
+    let cache_key_prefix = "todolist++:tasks";
+
     let mut connection = state.db.start_transaction().await?;
 
     let validated_id = TaskDeleteDto::from(task_id)
@@ -154,6 +193,8 @@ pub async fn delete(
     TaskDatabase::delete_by_id(validated_id, &mut *connection).await?;
 
     connection.commit().await?;
+
+    let _ = state.cache.delete_prefix(&cache_key_prefix).await;
 
     Ok(StatusCode::OK)
 }
@@ -177,6 +218,8 @@ pub async fn update(
     Json(payload): Json<TaskUpdateDto>,
 ) -> Result<StatusCode, ControllerError> {
     let user_id = access_claims.sub.parse().unwrap();
+    let cache_key_prefix = "todolist++:tasks";
+
     let mut connection = state.db.start_transaction().await?;
 
     let validated_params = payload
@@ -187,6 +230,8 @@ pub async fn update(
     TaskDatabase::update(&validated_params, &mut *connection).await?;
 
     connection.commit().await?;
+
+    let _ = state.cache.delete_prefix(&cache_key_prefix).await;
 
     Ok(StatusCode::OK)
 }

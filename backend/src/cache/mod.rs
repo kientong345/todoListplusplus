@@ -1,21 +1,23 @@
 pub mod local;
 use async_trait::async_trait;
-use std::time::Duration;
+use serde::{de::DeserializeOwned, Serialize};
+
+pub const DEFAULT_TTL_SECONDS: u64 = 999;
 
 #[async_trait]
-pub trait CacheInterface: Send + Sync {
-    type Error: Send + Sync + From<String>;
+pub trait Caching: Send + Sync {
+    async fn get<T: DeserializeOwned + Send>(&self, key: &str) -> Result<Option<T>, String>;
 
-    async fn get_value(&self, key: &str) -> Result<Option<serde_json::Value>, Self::Error>;
-
-    async fn set_value(
+    async fn set<T: Serialize + Send + Sync>(
         &self,
         key: &str,
-        value: serde_json::Value,
-        ttl: Option<Duration>,
-    ) -> Result<(), Self::Error>;
+        value: &T,
+        ttl_seconds: u64,
+    ) -> Result<(), String>;
 
-    async fn delete(&self, key: &str) -> Result<(), Self::Error>;
+    async fn delete(&self, key: &str) -> Result<(), String>;
 
-    async fn exists(&self, key: &str) -> Result<bool, Self::Error>;
+    async fn delete_prefix(&self, prefix: &str) -> Result<(), String>;
+
+    async fn clear(&self) -> Result<(), String>;
 }

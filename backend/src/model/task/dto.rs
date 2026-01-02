@@ -16,7 +16,7 @@ use crate::{
     utils::{datetime_to_string, pg_interval_to_string, string_to_datetime, string_to_pg_interval},
 };
 
-#[derive(Debug, Clone, Serialize, ToSchema)]
+#[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct TaskMinimalDto {
     #[schema(example = "123e4567-e89b-12d3-a456-426614174000")]
@@ -47,7 +47,7 @@ impl From<TaskMinimal> for TaskMinimalDto {
     }
 }
 
-#[derive(Debug, Clone, Serialize, ToSchema)]
+#[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct TaskDetailDto {
     #[schema(example = "123e4567-e89b-12d3-a456-426614174000")]
@@ -106,7 +106,7 @@ impl From<TaskDetail> for TaskDetailDto {
     }
 }
 
-#[derive(Debug, Clone, Deserialize, ToSchema)]
+#[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct TaskCreateDto {
     #[schema(example = "My Task")]
@@ -138,7 +138,7 @@ impl TaskCreateDto {
     }
 }
 
-#[derive(Debug, Clone, Deserialize, ToSchema)]
+#[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct TaskUpdateDto {
     #[schema(example = "My Task")]
@@ -189,7 +189,7 @@ impl TaskUpdateParams {
     }
 }
 
-#[derive(Debug, Clone, Deserialize, ToSchema)]
+#[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct TaskScheduleDto {
     #[schema(example = "2022-01-01T00:00:00.000Z")]
@@ -245,7 +245,7 @@ impl TaskDeleteDto {
     }
 }
 
-#[derive(Debug, Clone, Deserialize, ToSchema)]
+#[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct TaskSearchDto {
     #[schema(example = "My Task")]
