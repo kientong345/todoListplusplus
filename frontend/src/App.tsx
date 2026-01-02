@@ -8,6 +8,7 @@ import CategoryPage from "./pages/CategoryPage";
 import ProfilePage from "./pages/ProfilePage";
 import { AuthProvider } from "./contexts/AuthContext";
 import { ProtectedRoute } from "./components/layout/ProtectedRoute";
+import TaskDetailPage from "./pages/TaskDetailPage";
 
 function App() {
   return (
@@ -18,7 +19,8 @@ function App() {
             <Routes>
               <Route element={<ProtectedRoute />}>
                 <Route path="/" element={<DashboardPage />} />
-                <Route path="/category/:id" element={<CategoryPage />} />
+                <Route path="/categories/:categoryId" element={<CategoryPage />} />
+                <Route path="/categories/:categoryId/tasks/:taskId" element={<TaskDetailPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
               </Route>
               <Route path="/login" element={<LoginPage />} />

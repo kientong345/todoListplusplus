@@ -21,12 +21,11 @@ export default function LoginPage() {
     e.preventDefault();
     setIsLoading(true);
     try {
-      const { access_token } = await authService.login(email, password);
+      const { access_token } = await authService.login({email, password});
       await login(access_token);
       navigate("/");
     } catch (error) {
       console.error("Login failed", error);
-      // Optional: Show error message
     } finally {
       setIsLoading(false);
     }
@@ -42,7 +41,6 @@ export default function LoginPage() {
         navigate("/");
       } catch (error) {
         console.error("Google Login failed", error);
-        // Optional: Show error message
       } finally {
         setIsLoading(false);
       }

@@ -4,14 +4,16 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+async-trait = "0.1.56"
 axum = { version = "0.8.7", features = ["macros"] }
 axum-extra = { version = "0.12.2", features = ["cookie"] }
 bcrypt = "0.17.1"
 chrono = { version = "0.4", features = ["serde"] }
-deadpool-redis = "0.22.0"
+# deadpool-redis = "0.22.0"
 dotenvy = "0.15"
 jsonwebtoken = { version = "10.2.0", features = ["rust_crypto"] }
-redis = "0.32.7"
+moka = { version = "0.12.12", features = ["future"] }
+# redis = "0.32.7"
 regex = "1.12.2"
 reqwest = { version = "0.12.24", features = ["json"] }
 serde = { version = "1.0.225", features = ["derive"] }

@@ -85,14 +85,13 @@ pub struct SchedulerService {
 
     tx: Sender<UpdateEvent>,
     rx: Mutex<Receiver<UpdateEvent>>,
-
-    message_client: Arc<MessageClient>,
+    // message_client: Arc<MessageClient>,
 }
 
 impl SchedulerService {
     pub async fn init(
         db: PrimaryDatabase,
-        message_client: Arc<MessageClient>,
+        // message_client: Arc<MessageClient>,
     ) -> Result<Self, ServiceError> {
         let scheduled_taskmap = Arc::new(RwLock::new(HashMap::new()));
         let (tx, rx) = mpsc::channel(999);
@@ -101,8 +100,9 @@ impl SchedulerService {
             scheduled_taskmap,
             tx,
             rx: Mutex::new(rx),
-            message_client,
+            // message_client,
         };
+        scheduler_service.update_expired_reccurence_tasks().await?;
         scheduler_service.load_scheduled_tasks().await?;
         Ok(scheduler_service)
     }
@@ -120,6 +120,11 @@ impl SchedulerService {
                     .insert(task.id, scheduled_info);
             }
         }
+        Ok(())
+    }
+
+    /// in case of some reccurence tasks expired while server was down
+    async fn update_expired_reccurence_tasks(&self) -> Result<(), ServiceError> {
         Ok(())
     }
 

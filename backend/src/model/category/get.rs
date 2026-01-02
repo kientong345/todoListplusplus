@@ -24,6 +24,19 @@ impl CategoryDatabase {
         .await?;
         Ok(category)
     }
+
+    pub async fn get_owner_id(
+        category_id: Uuid,
+        connection: &mut PgConnection,
+    ) -> Result<Uuid, ModelError> {
+        let owner_id = sqlx::query_scalar!(
+            r#"SELECT cat_usr_id FROM categories WHERE cat_id = $1"#,
+            category_id
+        )
+        .fetch_one(connection)
+        .await?;
+        Ok(owner_id)
+    }
 }
 
 impl CategoryDetail {
