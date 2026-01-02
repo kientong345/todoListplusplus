@@ -41,7 +41,7 @@
       {
         "ordinal": 7,
         "name": "progress!: f64",
-        "type_info": "Numeric"
+        "type_info": "Float8"
       },
       {
         "ordinal": 8,
