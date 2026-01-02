@@ -64,7 +64,7 @@ export function CategoryCard({ category, onUpdate, onDelete }: CategoryCardProps
 
   return (
     <div className="group relative">
-      <Link to={`/category/${category.id}`}>
+      <Link to={`/categories/${category.id}`}>
         <Card className="hover:shadow-md transition-shadow cursor-pointer overflow-hidden border-muted h-full">
           <CardContent className="p-6 flex flex-col items-center text-center space-y-4">
             <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center overflow-hidden">

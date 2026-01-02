@@ -95,7 +95,7 @@ export function TaskCreateForm({
               type="date"
               value={expiresAt || ""}
               onChange={(e) => setExpiresAt(e.target.value)}
-              disabled={isLoading || (cycleTime !== "none" && cycleTime !== "")}
+              disabled={isLoading || (!!cycleTime && cycleTime !== "none")}
               className="h-11 shadow-sm block"
             />
           </div>

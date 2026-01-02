@@ -28,11 +28,6 @@ export function Navbar() {
             <img src="/logo.svg" alt="todoList++" className="h-8 w-auto" />
             <span className="font-bold sm:inline-block">todoList++</span>
           </Link>
-          <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
-            <Link to="/" className="transition-colors hover:text-foreground/80 text-foreground">
-              Dashboard
-            </Link>
-          </nav>
         </div>
 
         <div className="flex items-center space-x-4">

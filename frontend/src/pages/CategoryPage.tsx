@@ -12,7 +12,7 @@ import type { CategoryDetailDto } from "@/types/category";
 import type { TaskMinimalDto } from "@/types/task";
 
 export default function CategoryPage() {
-  const { id } = useParams<{ id: string }>();
+  const { categoryId } = useParams<{ categoryId: string }>();
   
   const [category, setCategory] = useState<CategoryDetailDto>();
   const [tasks, setTasks] = useState<TaskMinimalDto[]>([]);
@@ -25,12 +25,12 @@ export default function CategoryPage() {
   const PAGE_SIZE = 20;
 
   const fetchData = async () => {
-    if (!id) return;
+    if (!categoryId) return;
     setIsLoading(true);
     try {
       const [categoryData, tasksData] = await Promise.all([
-        categoryService.getOne(id),
-        taskService.getAll(id, { page, pageSize: PAGE_SIZE, status: [], titlePattern: '', sortBy: 'latest' })
+        categoryService.getOne(categoryId),
+        taskService.getAll(categoryId, { page, pageSize: PAGE_SIZE, status: [], titlePattern: '', sortBy: 'latest' })
       ]);
       setCategory(categoryData);
       setTasks(tasksData.items);
@@ -43,33 +43,14 @@ export default function CategoryPage() {
 
   useEffect(() => {
     fetchData();
-  }, [id, page]);
+  }, [categoryId, page]);
 
-  const handleToggleStatus = async (taskId: string) => {
-    const task = tasks.find(t => t.id === taskId);
-    if (!task || !id) return;
-    
-    // Toggle logic: done -> open, open/in_progress -> done
-    const newStatus = task.status === 'done' ? 'open' : 'done';
-    
-    // Optimistic update
-    setTasks(tasks.map(t => t.id === taskId ? { ...t, status: newStatus } : t));
-    
-    try {
-      await taskService.update(id, taskId, { status: newStatus });
-      // Refresh category stats if needed, or handle locally
-      fetchData(); // Simplest way to sync counters
-    } catch (error) {
-      console.error("Failed to update status:", error);
-      fetchData(); // Revert on error
-    }
-  };
 
   const handleAddTask = async (data: TaskCreateDto) => {
-    if (!id) return;
+    if (!categoryId) return;
     setIsLoading(true);
     try {
-      await taskService.create(id, data);
+      await taskService.create(categoryId, data);
       await fetchData();
       setIsAddTaskDialogOpen(false);
     } catch (error) {
@@ -80,9 +61,9 @@ export default function CategoryPage() {
   };
 
   const handleDeleteTask = async (taskId: string) => {
-    if (!id) return;
+    if (!categoryId) return;
     try {
-      await taskService.delete(id, taskId);
+      await taskService.delete(categoryId, taskId);
       await fetchData();
     } catch (error) {
       console.error("Failed to delete task:", error);
@@ -145,8 +126,8 @@ export default function CategoryPage() {
         </div>
         
         <TaskList 
+          categoryId={categoryId!}
           tasks={tasks} 
-          onToggleStatus={handleToggleStatus} 
           onDelete={handleDeleteTask}
         />
       </div>
