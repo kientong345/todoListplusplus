@@ -102,8 +102,8 @@ impl SchedulerService {
             rx: Mutex::new(rx),
             // message_client,
         };
-        scheduler_service.update_expired_reccurence_tasks().await?;
         scheduler_service.load_scheduled_tasks().await?;
+        // scheduler_service.update_expired_reccurence_tasks().await?;
         Ok(scheduler_service)
     }
 
@@ -125,6 +125,15 @@ impl SchedulerService {
 
     /// in case of some reccurence tasks expired while server was down
     async fn update_expired_reccurence_tasks(&self) -> Result<(), ServiceError> {
+        for (task_id, scheduled_info) in self.scheduled_taskmap.read().await.iter() {
+            if scheduled_info.expires_at < Utc::now() {
+                self.trigger_schedule_update_event(UpdateEvent {
+                    task_id: task_id.clone(),
+                    r#type: UpdateEventType::UpdateExpiration(Utc::now()),
+                })
+                .await?;
+            }
+        }
         Ok(())
     }
 

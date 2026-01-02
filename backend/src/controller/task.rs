@@ -102,8 +102,11 @@ pub async fn create(
     Extension(_access_claims): Extension<AccessClaims>,
     Json(payload): Json<TaskCreateDto>,
 ) -> Result<StatusCode, ControllerError> {
+    let gmt = state.config.app_config.gmt.clone();
+    let create_params = payload.bind(category_id).align_expiration(&gmt);
+
     let mut connection = state.db.start_transaction().await?;
-    let new_task = TaskDatabase::create_from(&payload.bind(category_id), &mut *connection).await?;
+    let new_task = TaskDatabase::create_from(&create_params, &mut *connection).await?;
     connection.commit().await?;
 
     if let Some(expires_at) = new_task.expires_at {

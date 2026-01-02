@@ -68,7 +68,8 @@ impl TaskDatabase {
                 tsk_cycle_time AS cycle_time,
                 tsk_notify_time AS notify_time
             FROM tasks
-            WHERE tsk_expires_at IS NOT NULL OR tsk_cycle_time IS NOT NULL"#,
+            WHERE (tsk_expires_at IS NOT NULL OR tsk_cycle_time IS NOT NULL)
+                AND tsk_status != 'cancel'"#,
         )
         .fetch_all(connection)
         .await?;

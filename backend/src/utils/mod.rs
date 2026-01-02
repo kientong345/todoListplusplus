@@ -1,4 +1,4 @@
-use chrono::{DateTime, Duration, Utc};
+use chrono::{DateTime, Datelike, Duration, Timelike, Utc};
 use serde::{de::DeserializeOwned, Deserialize, Deserializer, Serialize, Serializer};
 use sqlx::postgres::types::PgInterval;
 
@@ -156,6 +156,68 @@ pub async fn sleep_until_dt(datetime: DateTime<Utc>) {
     if datetime > now {
         if let Ok(duration) = (datetime - now).to_std() {
             tokio::time::sleep(duration).await;
+        }
+    }
+}
+
+pub fn get_end_of_day(datetime: DateTime<Utc>, gmt: &str) -> DateTime<Utc> {
+    // Parse GMT offset (e.g., "+7" or "-5")
+    let offset_hours = gmt.parse::<i64>().unwrap_or(0);
+    let offset = Duration::hours(offset_hours);
+
+    let local_dt = datetime + offset;
+
+    let local_end_of_day = local_dt
+        .with_hour(23)
+        .unwrap()
+        .with_minute(59)
+        .unwrap()
+        .with_second(59)
+        .unwrap()
+        .with_nanosecond(999_999_999)
+        .unwrap();
+
+    local_end_of_day - offset
+}
+
+pub fn get_end_of_week(datetime: DateTime<Utc>, gmt: &str) -> DateTime<Utc> {
+    let days_until_sunday = 6 - datetime.weekday().num_days_from_monday();
+    get_end_of_day(datetime + Duration::days(days_until_sunday as i64), gmt)
+}
+
+pub fn get_end_of_month(datetime: DateTime<Utc>, gmt: &str) -> DateTime<Utc> {
+    let (year, month) = if datetime.month() == 12 {
+        (datetime.year() + 1, 1)
+    } else {
+        (datetime.year(), datetime.month() + 1)
+    };
+    let first_day_next_month = chrono::NaiveDate::from_ymd_opt(year, month, 1)
+        .unwrap()
+        .and_hms_opt(0, 0, 0)
+        .unwrap()
+        .and_local_timezone(Utc)
+        .unwrap();
+    get_end_of_day(first_day_next_month - Duration::days(1), gmt)
+}
+
+pub enum RecurrenceType {
+    Daily,
+    Weekly,
+    Monthly,
+}
+
+impl TryFrom<PgInterval> for RecurrenceType {
+    type Error = String;
+
+    fn try_from(value: PgInterval) -> Result<Self, Self::Error> {
+        if value.months == 0 && value.days == 1 {
+            Ok(RecurrenceType::Daily)
+        } else if value.months == 0 && value.days == 7 {
+            Ok(RecurrenceType::Weekly)
+        } else if value.months == 1 {
+            Ok(RecurrenceType::Monthly)
+        } else {
+            Err("Invalid interval".to_string())
         }
     }
 }
