@@ -5,12 +5,14 @@ use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
 
 use crate::{
-    cache::{local::LocalCache, Caching},
     config::Configuration,
-    database::persistent::PrimaryDatabase,
+    infrastructures::persistent::PrimaryDatabase,
     openapi::ApiDoc,
     routes,
-    service::{auth::AuthService, message_client::MessageClient, task_scheduler::SchedulerService},
+    service::{
+        auth::AuthService, cache::LocalCache, message_client::MessageClient,
+        task_scheduler::SchedulerService,
+    },
 };
 
 #[derive(Clone)]

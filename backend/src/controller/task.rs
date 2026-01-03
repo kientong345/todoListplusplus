@@ -10,7 +10,6 @@ use uuid::Uuid;
 
 use crate::{
     app::AppState,
-    cache::{Caching, DEFAULT_TTL_SECONDS},
     controller::error::ControllerError,
     model::{
         pagination::{PageDto, Paginate},
@@ -23,7 +22,10 @@ use crate::{
         },
         user_auth::AccessClaims,
     },
-    service::task_scheduler::{UpdateEvent, UpdateEventType},
+    service::{
+        cache::DEFAULT_TTL_SECONDS,
+        task_scheduler::{UpdateEvent, UpdateEventType},
+    },
     utils::pg_interval_to_time,
 };
 

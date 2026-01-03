@@ -10,7 +10,6 @@ use uuid::Uuid;
 
 use crate::{
     app::AppState,
-    cache::{Caching, DEFAULT_TTL_SECONDS},
     controller::error::ControllerError,
     model::{
         category::{
@@ -23,6 +22,7 @@ use crate::{
         pagination::{PageDto, Paginate},
         user_auth::AccessClaims,
     },
+    service::cache::DEFAULT_TTL_SECONDS,
 };
 
 #[utoipa::path(

@@ -2,10 +2,12 @@ use std::{net::SocketAddr, sync::Arc};
 
 use todo_list_plusplus::{
     app::{self, AppState},
-    cache::local::LocalCache,
     config::Configuration,
-    database::persistent::PrimaryDatabase,
-    service::{auth::AuthService, message_client::MessageClient, task_scheduler::SchedulerService},
+    infrastructures::persistent::PrimaryDatabase,
+    service::{
+        auth::AuthService, cache::LocalCache, message_client::MessageClient,
+        task_scheduler::SchedulerService,
+    },
 };
 use tokio::net::TcpListener;
 use tower_http::cors::CorsLayer;

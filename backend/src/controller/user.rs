@@ -3,7 +3,6 @@ use reqwest::StatusCode;
 
 use crate::{
     app::AppState,
-    cache::{Caching, DEFAULT_TTL_SECONDS},
     controller::error::ControllerError,
     model::{
         user::{
@@ -12,6 +11,7 @@ use crate::{
         },
         user_auth::AccessClaims,
     },
+    service::cache::DEFAULT_TTL_SECONDS,
 };
 
 #[utoipa::path(

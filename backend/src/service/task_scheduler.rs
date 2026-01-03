@@ -8,7 +8,7 @@ use tokio::sync::{
 use uuid::Uuid;
 
 use crate::{
-    database::persistent::PrimaryDatabase,
+    infrastructures::persistent::PrimaryDatabase,
     model::task::TaskDatabase,
     service::{error::ServiceError, message_client::MessageClient},
     utils::{pg_interval_to_time, sleep_until_dt},
