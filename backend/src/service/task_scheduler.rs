@@ -8,7 +8,7 @@ use tokio::sync::{
 use uuid::Uuid;
 
 use crate::{
-    database::persistent::PrimaryDatabase,
+    infrastructures::persistent::PrimaryDatabase,
     model::task::TaskDatabase,
     service::{error::ServiceError, message_client::MessageClient},
     utils::{pg_interval_to_time, sleep_until_dt},
@@ -102,7 +102,6 @@ impl SchedulerService {
             rx: Mutex::new(rx),
             // message_client,
         };
-        scheduler_service.update_expired_reccurence_tasks().await?;
         scheduler_service.load_scheduled_tasks().await?;
         Ok(scheduler_service)
     }
@@ -120,11 +119,6 @@ impl SchedulerService {
                     .insert(task.id, scheduled_info);
             }
         }
-        Ok(())
-    }
-
-    /// in case of some reccurence tasks expired while server was down
-    async fn update_expired_reccurence_tasks(&self) -> Result<(), ServiceError> {
         Ok(())
     }
 

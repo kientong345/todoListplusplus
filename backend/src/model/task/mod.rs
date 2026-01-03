@@ -5,7 +5,10 @@ use serde::Serialize;
 use sqlx::{postgres::types::PgInterval, prelude::FromRow};
 use uuid::Uuid;
 
-use crate::model::error::ModelError;
+use crate::{
+    model::error::ModelError,
+    utils::{get_end_of_day, get_end_of_month, get_end_of_week, RecurrenceType},
+};
 
 pub mod delete;
 pub mod dto;
@@ -93,6 +96,22 @@ pub struct TaskCreateParams {
     pub expires_at: Option<DateTime<Utc>>,
     pub cycle_time: Option<PgInterval>,
     pub notify_time: Option<DateTime<Utc>>,
+}
+
+impl TaskCreateParams {
+    pub fn align_expiration(mut self, gmt: &str) -> Self {
+        self.expires_at = if let Some(cycle_time) = &self.cycle_time {
+            match RecurrenceType::try_from(*cycle_time) {
+                Ok(RecurrenceType::Daily) => Some(get_end_of_day(Utc::now(), gmt)),
+                Ok(RecurrenceType::Weekly) => Some(get_end_of_week(Utc::now(), gmt)),
+                Ok(RecurrenceType::Monthly) => Some(get_end_of_month(Utc::now(), gmt)),
+                _ => Some(get_end_of_day(Utc::now(), gmt)),
+            }
+        } else {
+            self.expires_at
+        };
+        self
+    }
 }
 
 #[derive(Debug, Clone)]

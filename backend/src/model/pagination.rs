@@ -1,4 +1,4 @@
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use sqlx::PgConnection;
 use utoipa::ToSchema;
 
@@ -13,7 +13,7 @@ pub struct Page<T> {
     pub page_size: i32,
 }
 
-#[derive(Debug, Clone, Serialize, ToSchema)]
+#[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct PageDto<T> {
     #[schema(example = "[item21, item22, item23, ..., item30]")]

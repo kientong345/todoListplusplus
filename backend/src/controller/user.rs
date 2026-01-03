@@ -11,6 +11,7 @@ use crate::{
         },
         user_auth::AccessClaims,
     },
+    service::cache::DEFAULT_TTL_SECONDS,
 };
 
 #[utoipa::path(
@@ -25,9 +26,21 @@ pub async fn get_me(
     Extension(access_claims): Extension<AccessClaims>,
 ) -> Result<(StatusCode, Json<UserInfoDto>), ControllerError> {
     let user_id = access_claims.sub.parse().unwrap();
+    let cache_key = format!("todolist++:users:{}", user_id);
+
+    if let Ok(Some(user)) = state.cache.get::<UserInfoDto>(&cache_key).await {
+        return Ok((StatusCode::OK, Json(user)));
+    }
+
     let mut connection = state.db.get_connection().await?;
-    let user = UserInfo::get_by_id(user_id, &mut *connection).await?;
-    Ok((StatusCode::OK, Json(user.into())))
+    let user: UserInfoDto = UserInfo::get_by_id(user_id, &mut *connection).await?.into();
+
+    let _ = state
+        .cache
+        .set::<UserInfoDto>(&cache_key, &user, DEFAULT_TTL_SECONDS)
+        .await;
+
+    Ok((StatusCode::OK, Json(user)))
 }
 
 #[utoipa::path(
@@ -44,8 +57,13 @@ pub async fn update_me(
     Json(payload): Json<UserUpdateDto>,
 ) -> Result<StatusCode, ControllerError> {
     let user_id = access_claims.sub.parse().unwrap();
+    let cache_key = format!("todolist++:users:{}", user_id);
+
     let mut connection = state.db.start_transaction().await?;
     UserDatabase::update(&payload.bind(user_id), &mut *connection).await?;
     connection.commit().await?;
+
+    let _ = state.cache.delete(&cache_key).await;
+
     Ok(StatusCode::OK)
 }

@@ -5,19 +5,21 @@ use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
 
 use crate::{
-    cache::CacheInterface,
     config::Configuration,
-    database::persistent::PrimaryDatabase,
+    infrastructures::persistent::PrimaryDatabase,
     openapi::ApiDoc,
     routes,
-    service::{auth::AuthService, message_client::MessageClient, task_scheduler::SchedulerService},
+    service::{
+        auth::AuthService, cache::LocalCache, message_client::MessageClient,
+        task_scheduler::SchedulerService,
+    },
 };
 
 #[derive(Clone)]
 pub struct AppState {
     pub db: PrimaryDatabase,
     pub config: Arc<Configuration>,
-    pub cache: Arc<dyn CacheInterface<Error = String>>,
+    pub cache: Arc<LocalCache>,
     pub auth_service: AuthService,
     pub scheduler_service: Arc<SchedulerService>,
     // pub email_client: Arc<MessageClient>,
@@ -30,9 +32,11 @@ pub async fn create_app(state: AppState) -> Router {
         // user routes
         .merge(routes::user::create_auth_route(state.clone()))
         // category routes
-        .merge(routes::category::create_route(state.clone()))
+        .merge(routes::category::create_auth_route(state.clone()))
+        .merge(routes::category::create_ownership_route(state.clone()))
         // task routes
-        .merge(routes::task::create_route(state.clone()))
+        .merge(routes::task::create_auth_route(state.clone()))
+        .merge(routes::task::create_ownership_route(state.clone()))
         // default routes
         .merge(routes::create_default_route())
         // health check routes

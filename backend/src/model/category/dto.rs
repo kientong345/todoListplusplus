@@ -16,7 +16,7 @@ use crate::{
     utils::datetime_to_string,
 };
 
-#[derive(Debug, Clone, Serialize, ToSchema)]
+#[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct CategoryDetailDto {
     #[schema(example = "123e4567-e89b-12d3-a456-426614174000")]
@@ -75,7 +75,7 @@ impl From<CategoryDetail> for CategoryDetailDto {
     }
 }
 
-#[derive(Debug, Clone, Serialize, ToSchema)]
+#[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct CategoryMinimalDto {
     #[schema(example = "123e4567-e89b-12d3-a456-426614174000")]
@@ -110,7 +110,7 @@ impl From<CategoryMinimal> for CategoryMinimalDto {
     }
 }
 
-#[derive(Debug, Clone, Deserialize, ToSchema)]
+#[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct CategoryCreateDto {
     #[schema(example = "My Category")]
@@ -135,7 +135,7 @@ impl CategoryCreateDto {
     }
 }
 
-#[derive(Debug, Clone, Deserialize, ToSchema)]
+#[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct CategoryUpdateDto {
     #[schema(example = "My Category")]
@@ -206,7 +206,7 @@ impl CategoryDeleteDto {
     }
 }
 
-#[derive(Debug, Clone, Deserialize, ToSchema)]
+#[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct CategorySearchDto {
     #[schema(example = "My Category")]
