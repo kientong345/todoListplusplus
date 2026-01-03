@@ -32,9 +32,11 @@ pub async fn create_app(state: AppState) -> Router {
         // user routes
         .merge(routes::user::create_auth_route(state.clone()))
         // category routes
-        .merge(routes::category::create_route(state.clone()))
+        .merge(routes::category::create_auth_route(state.clone()))
+        .merge(routes::category::create_ownership_route(state.clone()))
         // task routes
-        .merge(routes::task::create_route(state.clone()))
+        .merge(routes::task::create_auth_route(state.clone()))
+        .merge(routes::task::create_ownership_route(state.clone()))
         // default routes
         .merge(routes::create_default_route())
         // health check routes
