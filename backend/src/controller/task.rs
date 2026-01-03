@@ -141,7 +141,7 @@ pub async fn create(
 ) -> Result<StatusCode, ControllerError> {
     let gmt = state.config.app_config.gmt.clone();
     let create_params = payload.bind(category_id.clone()).align_expiration(&gmt);
-    let cache_key_prefix = format!("todolist++:categories:{}:tasks", category_id);
+    let cache_key_prefix = "todolist++:categories";
 
     let mut connection = state.db.start_transaction().await?;
     let new_task = TaskDatabase::create_from(&create_params, &mut *connection).await?;
@@ -185,7 +185,7 @@ pub async fn delete(
     Extension(access_claims): Extension<AccessClaims>,
 ) -> Result<StatusCode, ControllerError> {
     let user_id = access_claims.sub.parse().unwrap();
-    let cache_key_prefix = format!("todolist++:categories:{}:tasks", _category_id);
+    let cache_key_prefix = "todolist++:categories";
 
     let mut connection = state.db.start_transaction().await?;
 
@@ -221,7 +221,7 @@ pub async fn update(
     Json(payload): Json<TaskUpdateDto>,
 ) -> Result<StatusCode, ControllerError> {
     let user_id = access_claims.sub.parse().unwrap();
-    let cache_key_prefix = format!("todolist++:categories:{}:tasks", _category_id);
+    let cache_key_prefix = "todolist++:categories";
 
     let mut connection = state.db.start_transaction().await?;
 
