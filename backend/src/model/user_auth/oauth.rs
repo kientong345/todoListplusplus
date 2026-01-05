@@ -3,9 +3,20 @@ use utoipa::ToSchema;
 
 #[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
 pub struct OAuthSchema {
+    /// Unique ID from the OAuth provider (e.g., Google ID)
+    #[schema(example = "109876543210987654321")]
     pub google_id: String,
+
+    /// User's display name from provider
+    #[schema(example = "Google User")]
     pub display_name: String,
+
+    /// User's email from provider
+    #[schema(example = "user@gmail.com")]
     pub email: String,
+
+    /// Avatar URL from provider
+    #[schema(example = "https://lh3.googleusercontent.com/a/abc")]
     pub avatar_url: String,
 }
 
@@ -43,5 +54,7 @@ impl Into<OAuthSchema> for GoogleUserResult {
 
 #[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
 pub struct AuthorizationCode {
+    /// The authorization code received from Google OAuth flow
+    #[schema(example = "4/0Af...")]
     pub code: String,
 }

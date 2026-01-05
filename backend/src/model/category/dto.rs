@@ -19,39 +19,51 @@ use crate::{
 #[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct CategoryDetailDto {
+    /// Category UUID
     #[schema(example = "123e4567-e89b-12d3-a456-426614174000")]
     pub id: String,
 
+    /// Owner user UUID
     #[schema(example = "123e4567-e89b-12d3-a456-426614174000")]
     pub user_id: String,
 
+    /// Category name
     #[schema(example = "My Category")]
     pub name: String,
 
+    /// Optional icon or image URL
     #[schema(example = "https://example.com/image.jpg")]
     pub image_url: Option<String>,
 
+    /// Category description
     #[schema(example = "This is a category description")]
     pub description: Option<String>,
 
+    /// Creation timestamp (ISO 8601)
     #[schema(example = "2022-01-01T00:00:00.000Z")]
     pub created_at: Option<String>,
 
+    /// Last update timestamp (ISO 8601)
     #[schema(example = "2022-01-01T00:00:00.000Z")]
     pub updated_at: Option<String>,
 
+    /// Total number of tasks in this category
     #[schema(example = 10)]
     pub task_count: i64,
 
+    /// Number of open tasks
     #[schema(example = 5)]
     pub opened_task_count: i64,
 
+    /// Number of canceled tasks
     #[schema(example = 2)]
     pub canceled_task_count: i64,
 
+    /// Number of completed tasks
     #[schema(example = 3)]
     pub done_task_count: i64,
 
+    /// Completion progress percentage (0.0 - 100.0)
     #[schema(example = 50.0)]
     pub progress: f64,
 }
@@ -78,21 +90,27 @@ impl From<CategoryDetail> for CategoryDetailDto {
 #[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct CategoryMinimalDto {
+    /// Category UUID
     #[schema(example = "123e4567-e89b-12d3-a456-426614174000")]
     pub id: String,
 
+    /// Owner user UUID
     #[schema(example = "123e4567-e89b-12d3-a456-426614174000")]
     pub user_id: String,
 
+    /// Category name
     #[schema(example = "My Category")]
     pub name: String,
 
+    /// Optional icon or image URL
     #[schema(example = "https://example.com/image.jpg")]
     pub image_url: Option<String>,
 
+    /// Category description
     #[schema(example = "This is a category description")]
     pub description: Option<String>,
 
+    /// Total number of tasks in this category
     #[schema(example = 10)]
     pub task_count: i64,
 }

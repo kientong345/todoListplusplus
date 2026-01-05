@@ -22,9 +22,11 @@ use crate::{
 #[utoipa::path(
     post,
     path = "/auth/register",
+    tag = "auth",
     request_body = RegisterSchema,
     responses(
-        (status = 201, description = "Success", body = RegisterSchema),
+        (status = 201, description = "Registration successful"),
+        (status = 400, description = "Invalid input"),
     ),
 )]
 pub async fn handle_register(
@@ -48,9 +50,11 @@ pub async fn handle_register(
 #[utoipa::path(
     post,
     path = "/auth/login",
+    tag = "auth",
     request_body = LoginSchema,
     responses(
-        (status = 200, description = "Success", body = LoginSchema),
+        (status = 200, description = "Login successful", body = inline(serde_json::Value), example = json!({"access_token": "jwt_token_here"})),
+        (status = 401, description = "Invalid credentials"),
     ),
 )]
 pub async fn handle_login(
@@ -85,9 +89,13 @@ pub async fn handle_login(
 #[utoipa::path(
     post,
     path = "/auth/google/login",
-    request_body = AuthorizationCode,
+    tag = "auth",
+    params(
+        ("code" = String, Query, description = "Authorization code from Google"),
+    ),
     responses(
-        (status = 200, description = "Success", body = AuthorizationCode),
+        (status = 200, description = "Login successful", body = inline(serde_json::Value), example = json!({"access_token": "jwt_token_here"})),
+        (status = 401, description = "Invalid authorization code"),
     ),
 )]
 pub async fn handle_google_login(
@@ -131,8 +139,10 @@ pub async fn handle_google_login(
 #[utoipa::path(
     post,
     path = "/auth/refresh",
+    tag = "auth",
     responses(
-        (status = 200, description = "Success", body = AuthorizationCode),
+        (status = 200, description = "Token refreshed", body = inline(serde_json::Value), example = json!({"access_token": "jwt_token_here"})),
+        (status = 401, description = "Invalid or expired refresh token"),
     ),
 )]
 pub async fn handle_refresh(
@@ -169,8 +179,9 @@ pub async fn handle_refresh(
 #[utoipa::path(
     post,
     path = "/auth/logout",
+    tag = "auth",
     responses(
-        (status = 200, description = "Success", body = Value),
+        (status = 200, description = "Logout successful", body = inline(serde_json::Value), example = json!({"message": "Logout successful"})),
     ),
 )]
 pub async fn handle_logout(

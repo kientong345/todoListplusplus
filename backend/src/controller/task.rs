@@ -11,6 +11,7 @@ use uuid::Uuid;
 use crate::{
     app::AppState,
     controller::error::ControllerError,
+    infrastructures::cache::DEFAULT_TTL_SECONDS,
     model::{
         pagination::{PageDto, Paginate},
         task::{
@@ -22,24 +23,25 @@ use crate::{
         },
         user_auth::AccessClaims,
     },
-    service::{
-        cache::DEFAULT_TTL_SECONDS,
-        task_scheduler::{UpdateEvent, UpdateEventType},
-    },
+    service::task_scheduler::{UpdateEvent, UpdateEventType},
     utils::pg_interval_to_time,
 };
 
 #[utoipa::path(
     get,
-    path = "/tasks/{category_id}",
+    path = "/categories/{category_id}/tasks",
+    tag = "task",
     params(
-        ("category_id" = String, Path, description = "Category ID"),
+        ("category_id" = String, Path, description = "Category UUID"),
+        ("titlePattern" = Option<String>, Query, description = "Filter by task title"),
+        ("status" = Option<Vec<String>>, Query, description = "Filter by status: open, cancel, done"),
         ("page" = i32, Query, description = "Page number"),
         ("pageSize" = i32, Query, description = "Page size"),
-        ("sortBy" = String, Query, description = "Sort by"),
+        ("sortBy" = String, Query, description = "Sort by: latest, new-update, deadline"),
     ),
     responses(
         (status = 200, description = "Success", body = PageDto<TaskMinimalDto>),
+        (status = 401, description = "Unauthorized"),
     ),
 )]
 pub async fn get_page(
@@ -85,13 +87,16 @@ pub async fn get_page(
 
 #[utoipa::path(
     get,
-    path = "/tasks/{category_id}/{task_id}",
+    path = "/categories/{category_id}/tasks/{task_id}",
+    tag = "task",
     params(
-        ("category_id" = String, Path, description = "Category ID"),
-        ("task_id" = String, Path, description = "Task ID"),
+        ("category_id" = String, Path, description = "Category UUID"),
+        ("task_id" = String, Path, description = "Task UUID"),
     ),
     responses(
         (status = 200, description = "Success", body = TaskDetailDto),
+        (status = 401, description = "Unauthorized"),
+        (status = 404, description = "Task not found"),
     ),
 )]
 pub async fn find_by_id(
@@ -124,13 +129,15 @@ pub async fn find_by_id(
 
 #[utoipa::path(
     post,
-    path = "/tasks/{category_id}",
+    path = "/categories/{category_id}/tasks",
+    tag = "task",
     params(
-        ("category_id" = String, Path, description = "Category ID"),
+        ("category_id" = String, Path, description = "Category UUID"),
     ),
     request_body = TaskCreateDto,
     responses(
-        (status = 201, description = "Success", body = TaskDetailDto),
+        (status = 201, description = "Task created successfully"),
+        (status = 401, description = "Unauthorized"),
     ),
 )]
 pub async fn create(
@@ -170,13 +177,17 @@ pub async fn create(
 
 #[utoipa::path(
     delete,
-    path = "/tasks/{category_id}/{task_id}",
+    path = "/categories/{category_id}/tasks/{task_id}",
+    tag = "task",
     params(
-        ("category_id" = String, Path, description = "Category ID"),
-        ("task_id" = String, Path, description = "Task ID"),
+        ("category_id" = String, Path, description = "Category UUID"),
+        ("task_id" = String, Path, description = "Task UUID"),
     ),
     responses(
-        (status = 200, description = "Success", body = TaskDetailDto),
+        (status = 200, description = "Task deleted successfully"),
+        (status = 401, description = "Unauthorized"),
+        (status = 403, description = "Permission denied"),
+        (status = 404, description = "Task not found"),
     ),
 )]
 pub async fn delete(
@@ -203,15 +214,19 @@ pub async fn delete(
 }
 
 #[utoipa::path(
-    put,
-    path = "/tasks/{category_id}/{task_id}",
+    patch,
+    path = "/categories/{category_id}/tasks/{task_id}",
+    tag = "task",
     params(
-        ("category_id" = String, Path, description = "Category ID"),
-        ("task_id" = String, Path, description = "Task ID"),
+        ("category_id" = String, Path, description = "Category UUID"),
+        ("task_id" = String, Path, description = "Task UUID"),
     ),
     request_body = TaskUpdateDto,
     responses(
-        (status = 200, description = "Success", body = TaskDetailDto),
+        (status = 200, description = "Task updated successfully"),
+        (status = 401, description = "Unauthorized"),
+        (status = 403, description = "Permission denied"),
+        (status = 404, description = "Task not found"),
     ),
 )]
 pub async fn update(

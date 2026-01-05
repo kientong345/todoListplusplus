@@ -10,8 +10,8 @@ use uuid::Uuid;
 
 use crate::{
     app::AppState,
+    infrastructures::cache::DEFAULT_TTL_SECONDS,
     model::{category::CategoryDatabase, task::TaskDatabase, user_auth::AccessClaims},
-    service::cache::DEFAULT_TTL_SECONDS,
 };
 
 pub async fn category_ownership_check(

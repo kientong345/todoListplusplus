@@ -3,11 +3,8 @@ use std::{net::SocketAddr, sync::Arc};
 use todo_list_plusplus::{
     app::{self, AppState},
     config::Configuration,
-    infrastructures::persistent::PrimaryDatabase,
-    service::{
-        auth::AuthService, cache::LocalCache, message_client::MessageClient,
-        task_scheduler::SchedulerService,
-    },
+    infrastructures::{cache::LocalCache, persistent::PrimaryDatabase},
+    service::{auth::AuthService, task_scheduler::SchedulerService},
 };
 use tokio::net::TcpListener;
 use tower_http::cors::CorsLayer;
@@ -33,8 +30,10 @@ async fn main() {
 
     // let email_client = Arc::new(MessageClient::new());
 
+    let cache = Arc::new(LocalCache::new());
+
     let scheduler_service = Arc::new(
-        SchedulerService::init(db.clone() /* email_client.clone() */)
+        SchedulerService::init(db.clone(), cache.clone())
             .await
             .expect("cannot fetch scheduled tasks from database"),
     );
@@ -48,7 +47,7 @@ async fn main() {
     let app_state = AppState {
         db,
         config,
-        cache: Arc::new(LocalCache::new()),
+        cache,
         auth_service,
         scheduler_service,
         // email_client,

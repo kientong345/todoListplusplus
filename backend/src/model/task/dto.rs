@@ -19,18 +19,23 @@ use crate::{
 #[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct TaskMinimalDto {
+    /// Task UUID
     #[schema(example = "123e4567-e89b-12d3-a456-426614174000")]
     pub id: String,
 
+    /// Task title
     #[schema(example = "My Task")]
     pub title: String,
 
-    #[schema(example = "new_update")]
+    /// Task status: open, cancel, done
+    #[schema(example = "open")]
     pub status: String,
 
+    /// Expiration timestamp (ISO 8601)
     #[schema(example = "2022-01-01T00:00:00.000Z")]
     pub expires_at: Option<String>,
 
+    /// Cycle time for recurring tasks (e.g., "1 day", "2 weeks")
     #[schema(example = "1 day")]
     pub cycle_time: Option<String>,
 }
@@ -50,39 +55,51 @@ impl From<TaskMinimal> for TaskMinimalDto {
 #[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct TaskDetailDto {
+    /// Task UUID
     #[schema(example = "123e4567-e89b-12d3-a456-426614174000")]
     pub id: String,
 
+    /// Category UUID
     #[schema(example = "123e4567-e89b-12d3-a456-426614174000")]
     pub category_id: String,
 
+    /// Name of the category this task belongs to
     #[schema(example = "My Category")]
     pub category_name: String,
 
+    /// Task title
     #[schema(example = "My Task")]
     pub title: String,
 
+    /// Task description
     #[schema(example = "This is a task description")]
     pub description: Option<String>,
 
-    #[schema(example = "new_update")]
+    /// Task status: open, cancel, done
+    #[schema(example = "open")]
     pub status: String,
 
+    /// User provided comment or note
     #[schema(example = "My User Comment")]
     pub user_comment: Option<String>,
 
+    /// Creation timestamp (ISO 8601)
     #[schema(example = "2022-01-01T00:00:00.000Z")]
     pub created_at: Option<String>,
 
+    /// Last update timestamp (ISO 8601)
     #[schema(example = "2022-01-01T00:00:00.000Z")]
     pub updated_at: Option<String>,
 
+    /// Expiration timestamp (ISO 8601)
     #[schema(example = "2022-01-01T00:00:00.000Z")]
     pub expires_at: Option<String>,
 
+    /// Cycle time for recurring tasks (e.g., "1 day", "2 weeks")
     #[schema(example = "1 day")]
     pub cycle_time: Option<String>,
 
+    /// Notification timestamp (ISO 8601)
     #[schema(example = "2022-01-01T00:00:00.000Z")]
     pub notify_time: Option<String>,
 }
@@ -147,7 +164,7 @@ pub struct TaskUpdateDto {
     #[schema(example = "This is a task description")]
     pub description: Option<String>,
 
-    #[schema(example = "new_update")]
+    #[schema(example = "done")]
     pub status: Option<String>,
 
     #[schema(example = "My User Comment")]
@@ -251,7 +268,7 @@ pub struct TaskSearchDto {
     #[schema(example = "My Task")]
     pub title_pattern: Option<String>,
 
-    #[schema(example = "new_update")]
+    #[schema(example = json!(["open", "done"]))]
     pub status: Option<Vec<String>>,
 
     #[schema(example = "1")]

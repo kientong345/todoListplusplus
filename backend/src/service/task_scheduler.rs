@@ -8,7 +8,7 @@ use tokio::sync::{
 use uuid::Uuid;
 
 use crate::{
-    infrastructures::persistent::PrimaryDatabase,
+    infrastructures::{cache::LocalCache, persistent::PrimaryDatabase},
     model::task::TaskDatabase,
     service::{error::ServiceError, message_client::MessageClient},
     utils::{pg_interval_to_time, sleep_until_dt},
@@ -81,6 +81,7 @@ pub struct UpdateEvent {
 
 pub struct SchedulerService {
     db: PrimaryDatabase,
+    cache: Arc<LocalCache>,
     scheduled_taskmap: Arc<RwLock<HashMap<Uuid, ScheduledInfo>>>,
 
     tx: Sender<UpdateEvent>,
@@ -91,12 +92,14 @@ pub struct SchedulerService {
 impl SchedulerService {
     pub async fn init(
         db: PrimaryDatabase,
+        cache: Arc<LocalCache>,
         // message_client: Arc<MessageClient>,
     ) -> Result<Self, ServiceError> {
         let scheduled_taskmap = Arc::new(RwLock::new(HashMap::new()));
         let (tx, rx) = mpsc::channel(999);
         let mut scheduler_service = Self {
             db,
+            cache,
             scheduled_taskmap,
             tx,
             rx: Mutex::new(rx),
@@ -183,6 +186,10 @@ impl SchedulerService {
                     TaskDatabase::spawn_new_link(event.task_id, &mut *transaction).await?;
                     transaction.commit().await?;
                     schedule_info.expires_at = Utc::now() + schedule_info.cycle_time.unwrap();
+
+                    // delete cache
+                    let cache_key_prefix = "todolist++:categories";
+                    let _ = self.cache.delete_prefix(cache_key_prefix).await;
                 }
             }
             ScheduleEventType::Notification => {

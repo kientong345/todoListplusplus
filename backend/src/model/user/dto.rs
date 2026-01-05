@@ -12,24 +12,31 @@ use crate::{
 #[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct UserInfoDto {
+    /// User UUID
     #[schema(example = "123e4567-e89b-12d3-a456-426614174000")]
     pub id: String,
 
+    /// User's display name
     #[schema(example = "My Display Name")]
     pub display_name: String,
 
+    /// User's email address
     #[schema(example = "myemail@example.com")]
     pub email: String,
 
+    /// URL to user's avatar image
     #[schema(example = "https://example.com/avatar.jpg")]
     pub avatar_url: Option<String>,
 
+    /// User's self-description or bio
     #[schema(example = "This is a user description")]
     pub description: Option<String>,
 
+    /// Account creation timestamp (ISO 8601)
     #[schema(example = "2022-01-01T00:00:00.000Z")]
     pub created_at: Option<String>,
 
+    /// Last profile update timestamp (ISO 8601)
     #[schema(example = "2022-01-01T00:00:00.000Z")]
     pub updated_at: Option<String>,
 }
@@ -51,12 +58,15 @@ impl From<UserInfo> for UserInfoDto {
 #[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct UserUpdateDto {
+    /// New display name
     #[schema(example = "My Display Name")]
     pub display_name: Option<String>,
 
+    /// New avatar image URL
     #[schema(example = "https://example.com/avatar.jpg")]
     pub avatar_url: Option<String>,
 
+    /// New description or bio
     #[schema(example = "This is a user description")]
     pub description: Option<String>,
 }
