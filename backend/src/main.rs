@@ -7,6 +7,9 @@ use todo_list_plusplus::{
     service::{auth::AuthService, task_scheduler::SchedulerService},
 };
 use tokio::net::TcpListener;
+use tower_governor::{
+    governor::GovernorConfigBuilder, key_extractor::SmartIpKeyExtractor, GovernorLayer,
+};
 use tower_http::cors::CorsLayer;
 
 #[tokio::main]
@@ -59,8 +62,21 @@ async fn main() {
         .allow_methods(tower_http::cors::Any)
         .allow_headers(tower_http::cors::Any);
 
+    // rate limit
+    let governor_conf = GovernorConfigBuilder::default()
+        .per_second(5)
+        .burst_size(20)
+        .key_extractor(SmartIpKeyExtractor)
+        .finish()
+        .expect("cannot create governor config");
+
+    let governor_layer = GovernorLayer::new(governor_conf);
+
     // Create app
-    let app = app::create_app(app_state).await.layer(cors_layer);
+    let app = app::create_app(app_state)
+        .await
+        .layer(cors_layer)
+        .layer(governor_layer);
 
     // Serve app
     axum::serve(listener, app)
