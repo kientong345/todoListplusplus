@@ -64,8 +64,8 @@ async fn main() {
 
     // rate limit
     let governor_conf = GovernorConfigBuilder::default()
-        .per_second(5)
-        .burst_size(20)
+        .per_second(50)
+        .burst_size(200)
         .key_extractor(SmartIpKeyExtractor)
         .finish()
         .expect("cannot create governor config");
