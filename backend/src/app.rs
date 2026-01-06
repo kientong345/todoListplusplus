@@ -6,13 +6,11 @@ use utoipa_swagger_ui::SwaggerUi;
 
 use crate::{
     config::Configuration,
+    infrastructures::cache::LocalCache,
     infrastructures::persistent::PrimaryDatabase,
     openapi::ApiDoc,
     routes,
-    service::{
-        auth::AuthService, cache::LocalCache, message_client::MessageClient,
-        task_scheduler::SchedulerService,
-    },
+    service::{auth::AuthService, task_scheduler::SchedulerService},
 };
 
 #[derive(Clone)]

@@ -4,6 +4,7 @@ use reqwest::StatusCode;
 use crate::{
     app::AppState,
     controller::error::ControllerError,
+    infrastructures::cache::DEFAULT_TTL_SECONDS,
     model::{
         user::{
             dto::{UserInfoDto, UserUpdateDto},
@@ -11,14 +12,15 @@ use crate::{
         },
         user_auth::AccessClaims,
     },
-    service::cache::DEFAULT_TTL_SECONDS,
 };
 
 #[utoipa::path(
     get,
     path = "/users/me",
+    tag = "user",
     responses(
         (status = 200, description = "Success", body = UserInfoDto),
+        (status = 401, description = "Unauthorized"),
     ),
 )]
 pub async fn get_me(
@@ -46,9 +48,11 @@ pub async fn get_me(
 #[utoipa::path(
     put,
     path = "/users/me",
+    tag = "user",
     request_body = UserUpdateDto,
     responses(
-        (status = 200, description = "Success", body = UserInfoDto),
+        (status = 200, description = "User updated successfully"),
+        (status = 401, description = "Unauthorized"),
     ),
 )]
 pub async fn update_me(

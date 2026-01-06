@@ -16,18 +16,23 @@ pub struct Page<T> {
 #[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct PageDto<T> {
-    #[schema(example = "[item21, item22, item23, ..., item30]")]
+    /// List of items in the current page
+    #[schema(example = "[]")]
     pub items: Vec<T>,
 
+    /// Total number of items across all pages
     #[schema(example = 108)]
     pub total_items: i64,
 
+    /// Total number of pages
     #[schema(example = 11)]
     pub total_pages: i32,
 
+    /// Current page number (1-indexed)
     #[schema(example = 3)]
     pub current_page: i32,
 
+    /// Number of items per page
     #[schema(example = 10)]
     pub page_size: i32,
 }

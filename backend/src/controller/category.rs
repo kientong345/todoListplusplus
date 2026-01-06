@@ -11,6 +11,7 @@ use uuid::Uuid;
 use crate::{
     app::AppState,
     controller::error::ControllerError,
+    infrastructures::cache::DEFAULT_TTL_SECONDS,
     model::{
         category::{
             dto::{
@@ -22,19 +23,21 @@ use crate::{
         pagination::{PageDto, Paginate},
         user_auth::AccessClaims,
     },
-    service::cache::DEFAULT_TTL_SECONDS,
 };
 
 #[utoipa::path(
     get,
     path = "/categories",
+    tag = "category",
     params(
+        ("namePattern" = Option<String>, Query, description = "Filter by category name"),
         ("page" = i32, Query, description = "Page number"),
         ("pageSize" = i32, Query, description = "Page size"),
-        ("sortBy" = String, Query, description = "Sort by"),
+        ("sortBy" = String, Query, description = "Sort by: new_update, task_count, progress"),
     ),
     responses(
         (status = 200, description = "Success", body = PageDto<CategoryMinimalDto>),
+        (status = 401, description = "Unauthorized"),
     ),
 )]
 pub async fn get_page(
@@ -78,11 +81,14 @@ pub async fn get_page(
 #[utoipa::path(
     get,
     path = "/categories/{id}",
+    tag = "category",
     params(
-        ("id" = String, Path, description = "Category ID"),
+        ("id" = String, Path, description = "Category UUID"),
     ),
     responses(
         (status = 200, description = "Success", body = CategoryDetailDto),
+        (status = 401, description = "Unauthorized"),
+        (status = 404, description = "Category not found"),
     ),
 )]
 pub async fn find_by_id(
@@ -117,9 +123,11 @@ pub async fn find_by_id(
 #[utoipa::path(
     post,
     path = "/categories",
+    tag = "category",
     request_body = CategoryCreateDto,
     responses(
-        (status = 201, description = "Success", body = CategoryDetailDto),
+        (status = 201, description = "Category created successfully"),
+        (status = 401, description = "Unauthorized"),
     ),
 )]
 pub async fn create(
@@ -142,11 +150,15 @@ pub async fn create(
 #[utoipa::path(
     delete,
     path = "/categories/{id}",
+    tag = "category",
     params(
-        ("id" = String, Path, description = "Category ID"),
+        ("id" = String, Path, description = "Category UUID"),
     ),
     responses(
-        (status = 200, description = "Success", body = CategoryDetailDto),
+        (status = 200, description = "Category deleted successfully"),
+        (status = 401, description = "Unauthorized"),
+        (status = 403, description = "Permission denied"),
+        (status = 404, description = "Category not found"),
     ),
 )]
 pub async fn delete(
@@ -175,12 +187,16 @@ pub async fn delete(
 #[utoipa::path(
     put,
     path = "/categories/{id}",
+    tag = "category",
     params(
-        ("id" = String, Path, description = "Category ID"),
+        ("id" = String, Path, description = "Category UUID"),
     ),
     request_body = CategoryUpdateDto,
     responses(
-        (status = 200, description = "Success", body = CategoryDetailDto),
+        (status = 200, description = "Category updated successfully"),
+        (status = 401, description = "Unauthorized"),
+        (status = 403, description = "Permission denied"),
+        (status = 404, description = "Category not found"),
     ),
 )]
 pub async fn update(

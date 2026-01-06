@@ -3,13 +3,13 @@ use std::{net::SocketAddr, sync::Arc};
 use todo_list_plusplus::{
     app::{self, AppState},
     config::Configuration,
-    infrastructures::persistent::PrimaryDatabase,
-    service::{
-        auth::AuthService, cache::LocalCache, message_client::MessageClient,
-        task_scheduler::SchedulerService,
-    },
+    infrastructures::{cache::LocalCache, persistent::PrimaryDatabase},
+    service::{auth::AuthService, task_scheduler::SchedulerService},
 };
 use tokio::net::TcpListener;
+use tower_governor::{
+    governor::GovernorConfigBuilder, key_extractor::SmartIpKeyExtractor, GovernorLayer,
+};
 use tower_http::cors::CorsLayer;
 
 #[tokio::main]
@@ -33,8 +33,10 @@ async fn main() {
 
     // let email_client = Arc::new(MessageClient::new());
 
+    let cache = Arc::new(LocalCache::new());
+
     let scheduler_service = Arc::new(
-        SchedulerService::init(db.clone() /* email_client.clone() */)
+        SchedulerService::init(db.clone(), cache.clone())
             .await
             .expect("cannot fetch scheduled tasks from database"),
     );
@@ -48,7 +50,7 @@ async fn main() {
     let app_state = AppState {
         db,
         config,
-        cache: Arc::new(LocalCache::new()),
+        cache,
         auth_service,
         scheduler_service,
         // email_client,
@@ -60,8 +62,21 @@ async fn main() {
         .allow_methods(tower_http::cors::Any)
         .allow_headers(tower_http::cors::Any);
 
+    // rate limit
+    let governor_conf = GovernorConfigBuilder::default()
+        .per_second(5)
+        .burst_size(20)
+        .key_extractor(SmartIpKeyExtractor)
+        .finish()
+        .expect("cannot create governor config");
+
+    let governor_layer = GovernorLayer::new(governor_conf);
+
     // Create app
-    let app = app::create_app(app_state).await.layer(cors_layer);
+    let app = app::create_app(app_state)
+        .await
+        .layer(cors_layer)
+        .layer(governor_layer);
 
     // Serve app
     axum::serve(listener, app)
