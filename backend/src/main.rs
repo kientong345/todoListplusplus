@@ -75,8 +75,8 @@ async fn main() {
     // Create app
     let app = app::create_app(app_state)
         .await
-        .layer(cors_layer)
-        .layer(governor_layer);
+        .layer(governor_layer)
+        .layer(cors_layer);
 
     // Serve app
     axum::serve(listener, app)
