@@ -48,15 +48,16 @@ pub async fn get_page(
     State(state): State<AppState>,
     Query(query): Query<TaskSearchDto>,
     Path(category_id): Path<String>,
-    Extension(_access_claims): Extension<AccessClaims>,
+    Extension(access_claims): Extension<AccessClaims>,
 ) -> Result<Json<Value>, ControllerError> {
-    // let user_id = access_claims.sub.parse().unwrap();
+    let user_id: String = access_claims.sub.parse().unwrap();
     let mut query = query.clone();
     if let Some(statuses) = &mut query.status {
         statuses.sort();
     }
     let cache_key = format!(
-        "todolist++:categories:{}:tasks:title_pattern={}&status={}&page={}&pageSize={}&sortBy={}",
+        "todolist++:{}:categories:{}:tasks:title_pattern={}&status={}&page={}&pageSize={}&sortBy={}",
+        user_id,
         category_id,
         query.title_pattern.clone().unwrap_or("".to_string()),
         query.status.clone().unwrap_or(vec![]).join(","),
@@ -102,10 +103,14 @@ pub async fn get_page(
 pub async fn find_by_id(
     State(state): State<AppState>,
     Path((_category_id, task_id)): Path<(String, String)>,
-    Extension(_access_claims): Extension<AccessClaims>,
+    Extension(access_claims): Extension<AccessClaims>,
 ) -> Result<Json<Value>, ControllerError> {
     let task_id = Uuid::from_str(&task_id).unwrap();
-    let cache_key = format!("todolist++:categories:{}:tasks:{}", _category_id, task_id);
+    let user_id: String = access_claims.sub.parse().unwrap();
+    let cache_key = format!(
+        "todolist++:{}:categories:{}:tasks:{}",
+        user_id, _category_id, task_id
+    );
 
     if let Ok(Some(task)) = state.cache.get::<TaskDetailDto>(&cache_key).await {
         return Ok(Json(json!(task)));
@@ -143,12 +148,13 @@ pub async fn find_by_id(
 pub async fn create(
     State(state): State<AppState>,
     Path(category_id): Path<String>,
-    Extension(_access_claims): Extension<AccessClaims>,
+    Extension(access_claims): Extension<AccessClaims>,
     Json(payload): Json<TaskCreateDto>,
 ) -> Result<StatusCode, ControllerError> {
     let gmt = state.config.app_config.gmt.clone();
     let create_params = payload.bind(category_id.clone()).align_expiration(&gmt);
-    let cache_key_prefix = "todolist++:categories";
+    let user_id: String = access_claims.sub.parse().unwrap();
+    let cache_key_prefix = format!("todolist++:{}:categories", user_id);
 
     let mut connection = state.db.start_transaction().await?;
     let new_task = TaskDatabase::create_from(&create_params, &mut *connection).await?;
@@ -196,7 +202,7 @@ pub async fn delete(
     Extension(access_claims): Extension<AccessClaims>,
 ) -> Result<StatusCode, ControllerError> {
     let user_id = access_claims.sub.parse().unwrap();
-    let cache_key_prefix = "todolist++:categories";
+    let cache_key_prefix = format!("todolist++:{}:categories", user_id);
 
     let mut connection = state.db.start_transaction().await?;
 
@@ -236,7 +242,7 @@ pub async fn update(
     Json(payload): Json<TaskUpdateDto>,
 ) -> Result<StatusCode, ControllerError> {
     let user_id = access_claims.sub.parse().unwrap();
-    let cache_key_prefix = "todolist++:categories";
+    let cache_key_prefix = format!("todolist++:{}:categories", user_id);
 
     let mut connection = state.db.start_transaction().await?;
 

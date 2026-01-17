@@ -184,12 +184,14 @@ impl SchedulerService {
                 } else {
                     let mut transaction = self.db.start_transaction().await?;
                     TaskDatabase::spawn_new_link(event.task_id, &mut *transaction).await?;
+                    let owner_id =
+                        TaskDatabase::get_owner_id(event.task_id, &mut *transaction).await?;
                     transaction.commit().await?;
                     schedule_info.expires_at = Utc::now() + schedule_info.cycle_time.unwrap();
 
                     // delete cache
-                    let cache_key_prefix = "todolist++:categories";
-                    let _ = self.cache.delete_prefix(cache_key_prefix).await;
+                    let cache_key_prefix = format!("todolist++:{}:categories", owner_id);
+                    let _ = self.cache.delete_prefix(&cache_key_prefix).await;
                 }
             }
             ScheduleEventType::Notification => {

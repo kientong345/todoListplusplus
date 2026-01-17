@@ -47,7 +47,8 @@ pub async fn get_page(
 ) -> Result<Json<Value>, ControllerError> {
     let user_id = access_claims.sub.parse().unwrap();
     let cache_key = format!(
-        "todolist++:categories:name_pattern={}&page={}&pageSize={}&sortBy={}",
+        "todolist++:{}:categories:name_pattern={}&page={}&pageSize={}&sortBy={}",
+        user_id,
         query.name_pattern.clone().unwrap_or("".to_string()),
         query.page,
         query.page_size,
@@ -94,11 +95,12 @@ pub async fn get_page(
 pub async fn find_by_id(
     State(state): State<AppState>,
     Path(category_id): Path<String>,
-    Extension(_access_claims): Extension<AccessClaims>,
+    Extension(access_claims): Extension<AccessClaims>,
 ) -> Result<Json<Value>, ControllerError> {
+    let user_id: String = access_claims.sub.parse().unwrap();
     let category_id = Uuid::from_str(&category_id).unwrap();
 
-    let cache_key = format!("todolist++:categories:{}", category_id);
+    let cache_key = format!("todolist++:{}:categories:{}", user_id, category_id);
 
     if let Ok(Some(category)) = state.cache.get::<CategoryDetailDto>(&cache_key).await {
         return Ok(Json(json!(category)));
@@ -136,7 +138,7 @@ pub async fn create(
     Json(payload): Json<CategoryCreateDto>,
 ) -> Result<StatusCode, ControllerError> {
     let user_id = access_claims.sub.parse().unwrap();
-    let cache_key_prefix = "todolist++:categories";
+    let cache_key_prefix = format!("todolist++:{}:categories", user_id);
 
     let mut connection = state.db.start_transaction().await?;
     CategoryDatabase::create_from(&payload.bind(user_id), &mut *connection).await?;
@@ -167,7 +169,7 @@ pub async fn delete(
     Extension(access_claims): Extension<AccessClaims>,
 ) -> Result<StatusCode, ControllerError> {
     let user_id = access_claims.sub.parse().unwrap();
-    let cache_key_prefix = "todolist++:categories";
+    let cache_key_prefix = format!("todolist++:{}:categories", user_id);
 
     let mut connection = state.db.start_transaction().await?;
 
@@ -206,7 +208,7 @@ pub async fn update(
     Json(payload): Json<CategoryUpdateDto>,
 ) -> Result<StatusCode, ControllerError> {
     let user_id = access_claims.sub.parse().unwrap();
-    let cache_key_prefix = "todolist++:categories";
+    let cache_key_prefix = format!("todolist++:{}:categories", user_id);
 
     let mut connection = state.db.start_transaction().await?;
 
